@@ -36,11 +36,11 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <span className="relative flex items-center">
             <Image
-              src="/images/Logo-00.png"
+              src="/images/Logo-01.svg"
               alt="Danie Design logo"
               width={4167}
               height={1468}
-              className="invert h-9 w-auto object-contain"
+              className="h-9 w-auto object-contain"
             />
           </span>
             <p className="max-w-xs text-sm leading-relaxed text-muted">

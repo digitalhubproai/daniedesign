@@ -29,11 +29,11 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           <div className="flex h-20 items-center justify-between px-5">
             <span className="relative flex items-center">
             <Image
-              src="/images/Logo-00.png"
+              src="/images/Logo-01.svg"
               alt="Danie Design logo"
               width={4167}
               height={1468}
-              className="invert h-7 w-auto object-contain"
+              className="h-7 w-auto object-contain"
             />
           </span>
             <button

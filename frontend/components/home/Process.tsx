@@ -413,124 +413,226 @@ export default function Process() {
           >
             <defs>
               {/* Soft glow filter for anchor dots */}
-              <filter id="dotGlow" x="-80%" y="-80%" width="260%" height="260%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+              <filter id="dotGlow" x="-120%" y="-120%" width="340%" height="340%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
 
-              {/* Streak comet: bright core + soft wide blur blended */}
-              <filter id="cometGlow" x="-100%" y="-100%" width="300%" height="300%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="softBlur" />
-                <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="wideBlur" />
+              {/* Multi-stage High-Energy Comet Glow */}
+              <filter id="cometGlow" x="-150%" y="-150%" width="400%" height="400%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="sharp" />
+                <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="mid" />
+                <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="ambient" />
                 <feMerge>
-                  <feMergeNode in="wideBlur" />
-                  <feMergeNode in="softBlur" />
+                  <feMergeNode in="ambient" />
+                  <feMergeNode in="mid" />
+                  <feMergeNode in="sharp" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
 
-              {/* Define paths in defs for reuse by animateMotion */}
-              <path id="p1" d="M 400 150 C 470 150, 480 300, 520 300" />
-              <path id="p2" d="M 400 450 C 470 450, 480 300, 520 300" />
-              <path id="p3" d="M 680 300 C 720 300, 730 150, 800 150" />
-              <path id="p4" d="M 680 300 C 720 300, 730 450, 800 450" />
+              {/* Directional Energy Gradients */}
+              <linearGradient id="gradLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#ff2a00" stopOpacity="0.4" />
+                <stop offset="60%" stopColor="#ff6b2b" stopOpacity="0.9" />
+                <stop offset="90%" stopColor="#ffa066" stopOpacity="1" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="1" />
+              </linearGradient>
+
+              <linearGradient id="gradRight" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+                <stop offset="15%" stopColor="#ffa066" stopOpacity="1" />
+                <stop offset="45%" stopColor="#ff6b2b" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#ff2a00" stopOpacity="0.4" />
+              </linearGradient>
+
+              {/* Define paths with normalized pathLength for seamless 100% loop */}
+              <path id="p1" pathLength="1000" d="M 400 150 C 470 150, 480 300, 520 300" />
+              <path id="p2" pathLength="1000" d="M 400 450 C 470 450, 480 300, 520 300" />
+              <path id="p3" pathLength="1000" d="M 680 300 C 720 300, 730 150, 800 150" />
+              <path id="p4" pathLength="1000" d="M 680 300 C 720 300, 730 450, 800 450" />
             </defs>
 
-            {/* ── Track rails (faint base lines) ── */}
-            <use href="#p1" stroke="rgba(255,255,255,0.07)" strokeWidth="1.5" />
-            <use href="#p2" stroke="rgba(255,255,255,0.07)" strokeWidth="1.5" />
-            <use href="#p3" stroke="rgba(255,255,255,0.07)" strokeWidth="1.5" />
-            <use href="#p4" stroke="rgba(255,255,255,0.07)" strokeWidth="1.5" />
+            {/* ── Layer 1: Ambient Track Conduit (Soft Glow Base) ── */}
+            <use href="#p1" stroke="#ff4d1f" strokeWidth="6" opacity="0.08" filter="url(#cometGlow)" />
+            <use href="#p2" stroke="#ff4d1f" strokeWidth="6" opacity="0.08" filter="url(#cometGlow)" />
+            <use href="#p3" stroke="#ff4d1f" strokeWidth="6" opacity="0.08" filter="url(#cometGlow)" />
+            <use href="#p4" stroke="#ff4d1f" strokeWidth="6" opacity="0.08" filter="url(#cometGlow)" />
 
-            {/* ── Anchor dot: left-top card ── */}
-            <circle cx="400" cy="150" r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
-            <circle cx="400" cy="150" r="7" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.35">
-              <animate attributeName="r" values="6;11;6" dur="2s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite" />
-            </circle>
+            <use href="#p1" stroke="rgba(255,77,31,0.18)" strokeWidth="3" />
+            <use href="#p2" stroke="rgba(255,77,31,0.18)" strokeWidth="3" />
+            <use href="#p3" stroke="rgba(255,77,31,0.18)" strokeWidth="3" />
+            <use href="#p4" stroke="rgba(255,77,31,0.18)" strokeWidth="3" />
 
-            {/* ── Anchor dot: left-bottom card ── */}
-            <circle cx="400" cy="450" r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
-            <circle cx="400" cy="450" r="7" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.35">
-              <animate attributeName="r" values="6;11;6" dur="2s" begin="0.5s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" begin="0.5s" repeatCount="indefinite" />
-            </circle>
+            <use href="#p1" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+            <use href="#p2" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+            <use href="#p3" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+            <use href="#p4" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
 
-            {/* ── Anchor dot: right-top card ── */}
-            <circle cx="800" cy="150" r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
-            <circle cx="800" cy="150" r="7" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.35">
-              <animate attributeName="r" values="6;11;6" dur="2s" begin="1s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" begin="1s" repeatCount="indefinite" />
-            </circle>
-
-            {/* ── Anchor dot: right-bottom card ── */}
-            <circle cx="800" cy="450" r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
-            <circle cx="800" cy="450" r="7" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.35">
-              <animate attributeName="r" values="6;11;6" dur="2s" begin="1.5s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" begin="1.5s" repeatCount="indefinite" />
-            </circle>
-
-            {/* ── Center logo anchor dots (left & right entry points) ── */}
-            <circle cx="520" cy="300" r="3" fill="rgba(255,255,255,0.6)" filter="url(#dotGlow)" />
-            <circle cx="680" cy="300" r="3" fill="rgba(255,255,255,0.6)" filter="url(#dotGlow)" />
-
-            {/*
-              ── SIGNAL STREAKS ──
-              Technique: strokeDasharray = [streakLen, totalPathLen - streakLen]
-              SMIL animates strokeDashoffset from 0 → -totalPathLen (forward travel)
-              Each path is ~200px; streak = 40px wide for a comet-like streak.
-            */}
-
-            {/* Path 1: left-top → center  (200px path, 40px streak, 160px gap) */}
-            <use href="#p1" stroke="rgba(255,100,40,0.55)" strokeWidth="3"
-              strokeDasharray="40 160" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" repeatCount="indefinite" />
+            {/* ── Layer 2: Traveling Micro-Pulse Currents (Fiber Optic Baseline) ── */}
+            <use href="#p1" stroke="rgba(255,140,80,0.3)" strokeWidth="1.2" strokeDasharray="10 30" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000" dur="3.6s" repeatCount="indefinite" />
             </use>
-            {/* bright core of same streak */}
-            <use href="#p1" stroke="rgba(255,255,220,0.95)" strokeWidth="1.5"
-              strokeDasharray="14 186" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" repeatCount="indefinite" />
+            <use href="#p2" stroke="rgba(255,140,80,0.3)" strokeWidth="1.2" strokeDasharray="10 30" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000" dur="3.6s" repeatCount="indefinite" />
+            </use>
+            <use href="#p3" stroke="rgba(255,140,80,0.3)" strokeWidth="1.2" strokeDasharray="10 30" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000" dur="3.6s" repeatCount="indefinite" />
+            </use>
+            <use href="#p4" stroke="rgba(255,140,80,0.3)" strokeWidth="1.2" strokeDasharray="10 30" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000" dur="3.6s" repeatCount="indefinite" />
             </use>
 
-            {/* Path 2: left-bottom → center  (begin offset for stagger) */}
-            <use href="#p2" stroke="rgba(255,100,40,0.55)" strokeWidth="3"
-              strokeDasharray="40 160" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" begin="0.65s" repeatCount="indefinite" />
+            {/* ── Layer 3: Anchor Portals (Card Connections) ── */}
+            {/* Left-Top (Phase 01) */}
+            <g transform="translate(400, 150)">
+              <circle r="16" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.2">
+                <animate attributeName="r" values="6;20;6" dur="2.4s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.4s" repeatCount="indefinite" />
+              </circle>
+              <circle r="9" fill="none" stroke="#ff7a3d" strokeWidth="1.2" opacity="0.4">
+                <animate attributeName="r" values="4;12;4" dur="1.8s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0;0.6" dur="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
+              <circle r="1.5" fill="#ffffff" />
+            </g>
+
+            {/* Left-Bottom (Phase 02) */}
+            <g transform="translate(400, 450)">
+              <circle r="16" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.2">
+                <animate attributeName="r" values="6;20;6" dur="2.4s" begin="0.6s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.4s" begin="0.6s" repeatCount="indefinite" />
+              </circle>
+              <circle r="9" fill="none" stroke="#ff7a3d" strokeWidth="1.2" opacity="0.4">
+                <animate attributeName="r" values="4;12;4" dur="1.8s" begin="0.6s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0;0.6" dur="1.8s" begin="0.6s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
+              <circle r="1.5" fill="#ffffff" />
+            </g>
+
+            {/* Right-Top (Phase 03) */}
+            <g transform="translate(800, 150)">
+              <circle r="16" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.2">
+                <animate attributeName="r" values="6;20;6" dur="2.4s" begin="1.2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.4s" begin="1.2s" repeatCount="indefinite" />
+              </circle>
+              <circle r="9" fill="none" stroke="#ff7a3d" strokeWidth="1.2" opacity="0.4">
+                <animate attributeName="r" values="4;12;4" dur="1.8s" begin="1.2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0;0.6" dur="1.8s" begin="1.2s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
+              <circle r="1.5" fill="#ffffff" />
+            </g>
+
+            {/* Right-Bottom (Phase 04) */}
+            <g transform="translate(800, 450)">
+              <circle r="16" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.2">
+                <animate attributeName="r" values="6;20;6" dur="2.4s" begin="1.8s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0;0.4" dur="2.4s" begin="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle r="9" fill="none" stroke="#ff7a3d" strokeWidth="1.2" opacity="0.4">
+                <animate attributeName="r" values="4;12;4" dur="1.8s" begin="1.8s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0;0.6" dur="1.8s" begin="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
+              <circle r="1.5" fill="#ffffff" />
+            </g>
+
+            {/* ── Center Logo Portals ── */}
+            <g transform="translate(520, 300)">
+              <circle r="12" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.3">
+                <animate attributeName="r" values="4;14;4" dur="1.8s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.5;0;0.5" dur="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
+              <circle r="1.5" fill="#ffffff" />
+            </g>
+            <g transform="translate(680, 300)">
+              <circle r="12" fill="none" stroke="#ff4d1f" strokeWidth="1" opacity="0.3">
+                <animate attributeName="r" values="4;14;4" dur="1.8s" begin="0.4s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.5;0;0.5" dur="1.8s" begin="0.4s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#ff4d1f" filter="url(#dotGlow)" />
+              <circle r="1.5" fill="#ffffff" />
+            </g>
+
+            {/* ── Layer 4: HIGH-ENERGY CONNECTING LASER STRIPES ── */}
+
+            {/* Path 1: Left-Top → Center */}
+            <use href="#p1" stroke="url(#gradLeft)" strokeWidth="5"
+              strokeDasharray="200 800" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" repeatCount="indefinite" />
             </use>
-            <use href="#p2" stroke="rgba(255,255,220,0.95)" strokeWidth="1.5"
-              strokeDasharray="14 186" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" begin="0.65s" repeatCount="indefinite" />
+            <use href="#p1" stroke="#ffffff" strokeWidth="2"
+              strokeDasharray="60 940" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" repeatCount="indefinite" />
+            </use>
+            {/* Trailing Micro-Particle */}
+            <use href="#p1" stroke="#ffcca8" strokeWidth="2.5"
+              strokeDasharray="16 984" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.38s" repeatCount="indefinite" />
             </use>
 
-            {/* Path 3: center → right-top */}
-            <use href="#p3" stroke="rgba(255,100,40,0.55)" strokeWidth="3"
-              strokeDasharray="40 160" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" begin="0.3s" repeatCount="indefinite" />
+            {/* Path 2: Left-Bottom → Center */}
+            <use href="#p2" stroke="url(#gradLeft)" strokeWidth="5"
+              strokeDasharray="200 800" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.52s" repeatCount="indefinite" />
             </use>
-            <use href="#p3" stroke="rgba(255,255,220,0.95)" strokeWidth="1.5"
-              strokeDasharray="14 186" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" begin="0.3s" repeatCount="indefinite" />
+            <use href="#p2" stroke="#ffffff" strokeWidth="2"
+              strokeDasharray="60 940" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.52s" repeatCount="indefinite" />
+            </use>
+            {/* Trailing Micro-Particle */}
+            <use href="#p2" stroke="#ffcca8" strokeWidth="2.5"
+              strokeDasharray="16 984" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.9s" repeatCount="indefinite" />
             </use>
 
-            {/* Path 4: center → right-bottom */}
-            <use href="#p4" stroke="rgba(255,100,40,0.55)" strokeWidth="3"
-              strokeDasharray="40 160" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" begin="0.95s" repeatCount="indefinite" />
+            {/* Path 3: Center → Right-Top */}
+            <use href="#p3" stroke="url(#gradRight)" strokeWidth="5"
+              strokeDasharray="200 800" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.26s" repeatCount="indefinite" />
             </use>
-            <use href="#p4" stroke="rgba(255,255,220,0.95)" strokeWidth="1.5"
-              strokeDasharray="14 186" strokeLinecap="round" filter="url(#cometGlow)">
-              <animate attributeName="stroke-dashoffset" from="0" to="-200"
-                dur="1.8s" begin="0.95s" repeatCount="indefinite" />
+            <use href="#p3" stroke="#ffffff" strokeWidth="2"
+              strokeDasharray="60 940" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.26s" repeatCount="indefinite" />
+            </use>
+            {/* Trailing Micro-Particle */}
+            <use href="#p3" stroke="#ffcca8" strokeWidth="2.5"
+              strokeDasharray="16 984" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.64s" repeatCount="indefinite" />
+            </use>
+
+            {/* Path 4: Center → Right-Bottom */}
+            <use href="#p4" stroke="url(#gradRight)" strokeWidth="5"
+              strokeDasharray="200 800" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.78s" repeatCount="indefinite" />
+            </use>
+            <use href="#p4" stroke="#ffffff" strokeWidth="2"
+              strokeDasharray="60 940" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="0.78s" repeatCount="indefinite" />
+            </use>
+            {/* Trailing Micro-Particle */}
+            <use href="#p4" stroke="#ffcca8" strokeWidth="2.5"
+              strokeDasharray="16 984" strokeLinecap="round" filter="url(#cometGlow)" pathLength="1000">
+              <animate attributeName="stroke-dashoffset" from="0" to="-1000"
+                dur="1.6s" begin="1.16s" repeatCount="indefinite" />
             </use>
           </svg>
 
@@ -548,12 +650,12 @@ export default function Process() {
             <div className="relative z-10 flex items-center justify-center py-8 lg:col-span-4 lg:py-0">
               <div className="relative flex items-center justify-center p-6">
                 <Image
-                  src="/images/Logo-00.png"
+                  src="/images/Logo-01.svg"
                   alt="Danie Design"
                   width={4167}
                   height={1468}
                   priority
-                  className="invert h-12 w-auto object-contain md:h-14 transition-transform duration-300 hover:scale-105"
+                  className="h-12 w-auto object-contain md:h-14 transition-transform duration-300 hover:scale-105"
                 />
               </div>
             </div>

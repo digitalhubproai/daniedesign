@@ -52,12 +52,12 @@ export default function Navbar() {
         >
           <div className="flex items-center">
             <Image
-              src="/images/Logo-00.png"
+              src="/images/Logo-01.svg"
               alt="Danie Design logo"
               width={4167}
               height={1468}
               priority
-              className="invert h-5 w-auto object-contain md:h-6 transition-transform duration-300 hover:scale-105"
+              className="h-5 w-auto object-contain md:h-6 transition-transform duration-300 hover:scale-105"
             />
           </div>
         </Link>
