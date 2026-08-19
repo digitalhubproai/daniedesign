@@ -62,17 +62,17 @@ export default function CreativeWall() {
               href="/contact"
               data-preview={item.image}
               data-cursor="OPEN"
-              className="group flex items-baseline justify-between border-t border-ink/10 py-6 transition-colors hover:bg-paper/[0.02] last:border-b md:py-8"
+              className="group flex items-baseline justify-between gap-4 border-t border-ink/10 py-6 transition-colors hover:bg-paper/[0.02] last:border-b md:py-8"
             >
-              <span className="flex items-baseline gap-4 md:gap-8">
+              <span className="flex min-w-0 items-baseline gap-4 md:gap-8">
                 <span className="text-xs font-bold text-muted">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="display text-3xl font-medium tracking-tight text-ink transition-all duration-300 group-hover:translate-x-3 group-hover:text-accent sm:text-4xl md:text-6xl">
+                <span className="display min-w-0 text-3xl font-medium tracking-tight text-ink transition-all duration-300 group-hover:translate-x-3 group-hover:text-accent sm:text-4xl md:text-6xl">
                   {item.label}
                 </span>
               </span>
-              <span className="flex items-center gap-3">
+              <span className="flex shrink-0 items-center gap-3">
                 <span className="eyebrow hidden md:inline">{item.category}</span>
                 <ArrowUpRight className="h-6 w-6 text-muted transition-all duration-300 group-hover:rotate-45 group-hover:text-accent md:h-8 md:w-8" />
               </span>

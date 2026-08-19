@@ -28,9 +28,11 @@ function hexToRgba(hex: string, alpha: number) {
 function ServiceCard({
   service,
   cardRef,
+  clickable = false,
 }: {
   service: Service;
   cardRef?: (el: HTMLDivElement | null) => void;
+  clickable?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -68,7 +70,7 @@ function ServiceCard({
     };
   }, []);
 
-  return (
+  const card = (
     <div
       ref={(el) => {
         rootRef.current = el;
@@ -105,6 +107,11 @@ function ServiceCard({
               <span className="text-ink/30">—</span>
               <span className="text-ink/80">{service.title}</span>
             </span>
+            {clickable && (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/15 text-ink transition-all duration-300 group-hover:rotate-45 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-[#0e0e0e]">
+                <ArrowUpRight className="h-4 w-4" />
+              </span>
+            )}
           </div>
 
           <div className="flex flex-1 flex-col justify-center py-4">
@@ -143,7 +150,7 @@ function ServiceCard({
           </div>
         </div>
 
-        <div className="pointer-events-none relative min-h-[260px] overflow-hidden md:absolute md:inset-y-0 md:right-0 md:z-20 md:w-[45%] md:rounded-l-[2.25rem] md:transition-all md:duration-700 md:ease-[cubic-bezier(0.16,1,0.3,1)] md:group-hover:w-full md:group-hover:rounded-l-none md:group-hover:shadow-[-60px_0_80px_-30px_rgba(0,0,0,0.75)]">
+        <div className="pointer-events-none relative hidden min-h-[260px] overflow-hidden md:absolute md:inset-y-0 md:right-0 md:z-20 md:block md:w-[45%] md:rounded-l-[2.25rem] md:transition-all md:duration-700 md:ease-[cubic-bezier(0.16,1,0.3,1)] md:group-hover:w-full md:group-hover:rounded-l-none md:group-hover:shadow-[-60px_0_80px_-30px_rgba(0,0,0,0.75)]">
           <Image
             ref={imgRef}
             src={service.image}
@@ -158,14 +165,20 @@ function ServiceCard({
             aria-hidden="true"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <Link
-              href={service.href}
-              data-cursor="OPEN"
-              className="group/link pointer-events-auto flex items-center gap-3 rounded-full border border-white/20 bg-black/75 px-6 py-3.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-[#0e0e0e] hover:shadow-[0_0_30px_var(--accent-shadow)] lg:translate-y-4 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
-            >
-              Explore {service.title}
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
-            </Link>
+            {clickable ? (
+              <span className="flex items-center gap-3 rounded-full border border-white/20 bg-black/75 px-6 py-3.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md">
+                Explore {service.title}
+              </span>
+            ) : (
+              <Link
+                href={service.href}
+                data-cursor="OPEN"
+                className="group/link pointer-events-auto flex items-center gap-3 rounded-full border border-white/20 bg-black/75 px-6 py-3.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-[#0e0e0e] hover:shadow-[0_0_30px_var(--accent-shadow)] lg:pointer-fine:translate-y-4 lg:pointer-fine:opacity-0 lg:pointer-fine:group-hover:translate-y-0 lg:pointer-fine:group-hover:opacity-100"
+              >
+                Explore {service.title}
+                <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -176,6 +189,21 @@ function ServiceCard({
       />
     </div>
   );
+
+  if (clickable) {
+    return (
+      <Link
+        href={service.href}
+        data-cursor="OPEN"
+        aria-label={`Explore ${service.title}`}
+        className="block h-full w-full"
+      >
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
 }
 
 function CTACard({
@@ -450,7 +478,7 @@ export default function StackedScrollCards() {
 
       <div className="flex flex-col gap-8 px-5 py-10 md:px-10 lg:hidden">
         {services.map((service) => (
-          <ServiceCard key={service.number} service={service} />
+          <ServiceCard key={service.number} service={service} clickable />
         ))}
         <CTACard />
       </div>

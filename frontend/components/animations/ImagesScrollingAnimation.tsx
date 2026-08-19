@@ -40,7 +40,7 @@ const StickyCard_001 = ({
           top: `calc(-4vh + ${i * 15 + 220}px)`,
         }}
         className="group relative flex origin-top flex-col overflow-hidden rounded-[1.5rem] border border-ink/10 bg-card shadow-[0_40px_90px_-40px_rgba(0,0,0,0.7)] sm:rounded-[2rem]
-                   h-[300px] w-[400px]
+                   h-[300px] w-[min(400px,88vw)]
                    sm:h-[360px] sm:w-[520px]
                    md:h-[430px] md:w-[640px]
                    lg:h-[500px] lg:w-[820px]"

@@ -192,7 +192,7 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            className="fixed inset-0 bg-paper px-6 pt-24 md:hidden"
+            className="fixed inset-0 overflow-y-auto bg-paper px-6 pb-10 pt-24 md:hidden"
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}

@@ -85,8 +85,11 @@ export default function AwardsShowcase() {
               <div
                 key={group.platform}
                 onMouseEnter={() => setActive(i)}
+                onClick={() => setActive(i)}
+                onFocus={() => setActive(i)}
+                tabIndex={0}
                 className={`transition-all duration-500 ${
-                  isActive ? "opacity-100" : "opacity-60"
+                  isActive ? "opacity-100" : "opacity-100 pointer-fine:opacity-60"
                 }`}
               >
                 <TiltCard

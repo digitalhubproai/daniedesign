@@ -123,7 +123,7 @@ export default async function ProjectPage({ params }: Props) {
                 key={image}
                 src={image}
                 alt={`${project.title} — gallery image ${i + 1}`}
-                className={`w-full rounded-[1.25rem] ${i % 2 === 0 ? "md:h-[60vh]" : "md:h-[46vh] md:ml-auto md:w-4/5"}`}
+                className={`h-[42vh] w-full rounded-[1.25rem] ${i % 2 === 0 ? "md:h-[60vh]" : "md:h-[46vh] md:ml-auto md:w-4/5"}`}
                 imgClassName="photo-duo"
                 sizes="100vw"
               />
