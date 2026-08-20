@@ -9,7 +9,6 @@ import FeaturedWork from "@/components/home/FeaturedWork";
 import FeaturedStack from "@/components/home/FeaturedStack";
 import ImpactStats from "@/components/home/ImpactStats";
 import BlogPreview from "@/components/home/BlogPreview";
-import FinalCTA from "@/components/home/FinalCTA";
 
 export default function Home() {
   return (
@@ -25,7 +24,6 @@ export default function Home() {
       <FeaturedStack />
       <ImpactStats />
       <BlogPreview />
-      <FinalCTA />
     </main>
   );
 }

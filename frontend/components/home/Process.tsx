@@ -13,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import SplitText from "@/components/animations/SplitText";
+import TiltCard from "@/components/animations/TiltCard";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
 
 type ProcessStep = {
@@ -215,7 +216,13 @@ const processes: ServiceProcess[] = [
 
 function ProcessCard({ step }: { step: ProcessStep }) {
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-500 hover:border-accent/30 hover:shadow-[0_0_40px_rgba(255,77,31,0.07)]">
+    <TiltCard
+      className="rounded-2xl"
+      maxTilt={7}
+      clip={false}
+      glowColor="rgba(255, 77, 31, 0.12)"
+    >
+      <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-500 hover:border-accent/30 hover:shadow-[0_0_40px_rgba(255,77,31,0.07)]">
 
       {/* Top accent line — slides in on hover */}
       <span className="absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-gradient-to-r from-accent via-orange-400 to-transparent transition-transform duration-500 group-hover:scale-x-100" />
@@ -265,7 +272,8 @@ function ProcessCard({ step }: { step: ProcessStep }) {
           ))}
         </div>
       </div>
-    </div>
+      </div>
+    </TiltCard>
   );
 }
 

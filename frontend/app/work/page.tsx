@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/shared/PageHero";
 import ProjectGrid from "@/components/portfolio/ProjectGrid";
-import FinalCTA from "@/components/home/FinalCTA";
 
 export const metadata: Metadata = {
   title: "Portfolio",
@@ -23,7 +22,6 @@ export default function WorkPage() {
           <ProjectGrid />
         </div>
       </section>
-      <FinalCTA />
     </main>
   );
 }

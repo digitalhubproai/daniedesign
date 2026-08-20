@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Clock, Search, BookOpen } from "lucide-react";
 import { BlogPost } from "@/data/blog";
+import TiltCard from "@/components/animations/TiltCard";
 
 export default function BlogClient({ posts }: { posts: BlogPost[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -144,13 +145,21 @@ export default function BlogClient({ posts }: { posts: BlogPost[] }) {
                 {filteredPosts.map((post, idx) => {
                   const isHovered = hoveredIndex === idx;
                   return (
-                    <Link
+                    <TiltCard
                       key={post.slug}
-                      href={`/blog/${post.slug}`}
-                      onMouseEnter={() => setHoveredIndex(idx)}
-                      onMouseLeave={() => setHoveredIndex(null)}
-                      className="group relative flex flex-col gap-6 border-b border-white/10 py-10 transition-all duration-300 hover:bg-white/[0.02] md:flex-row md:items-start md:gap-8 md:p-8"
+                      className="w-full"
+                      maxTilt={3}
+                      glow={false}
+                      glare={false}
+                      shadow={false}
+                      clip={false}
                     >
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        onMouseEnter={() => setHoveredIndex(idx)}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                        className="group relative flex flex-col gap-6 border-b border-white/10 py-10 transition-all duration-300 hover:bg-white/[0.02] md:flex-row md:items-start md:gap-8 md:p-8"
+                      >
                       {/* Left Number Index */}
                       <span className="font-mono text-lg font-bold text-accent md:text-xl shrink-0">
                         {String(idx + 1).padStart(2, "0")}
@@ -198,6 +207,7 @@ export default function BlogClient({ posts }: { posts: BlogPost[] }) {
                         </div>
                       </div>
                     </Link>
+                    </TiltCard>
                   );
                 })}
               </div>

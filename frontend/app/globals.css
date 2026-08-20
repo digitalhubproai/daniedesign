@@ -105,6 +105,27 @@ body {
   color: transparent;
 }
 
+@keyframes social-bounce {
+  0% {
+    transform: rotateY(0deg) translateY(0) scale(1);
+  }
+  30% {
+    transform: rotateY(165deg) translateY(-12px) scale(1.18);
+  }
+  50% {
+    transform: rotateY(180deg) translateY(4px) scale(1.14);
+  }
+  68% {
+    transform: rotateY(180deg) translateY(-5px) scale(1.16);
+  }
+  84% {
+    transform: rotateY(180deg) translateY(2px) scale(1.13);
+  }
+  100% {
+    transform: rotateY(180deg) translateY(0) scale(1.14);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

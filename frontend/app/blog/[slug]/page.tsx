@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Clock, Tag, Share2, CheckCircle2 } from "lucide-react";
 import { blogPosts, getPost } from "@/data/blog";
-import FinalCTA from "@/components/home/FinalCTA";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -192,8 +191,6 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         </div>
       </section>
-
-      <FinalCTA />
     </main>
   );
 }

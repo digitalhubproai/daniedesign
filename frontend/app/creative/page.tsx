@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/shared/PageHero";
 import CreativeWall from "@/components/shared/CreativeWall";
-import FinalCTA from "@/components/home/FinalCTA";
 
 export const metadata: Metadata = {
   title: "Creative",
@@ -22,7 +21,6 @@ export default function CreativePage() {
           <CreativeWall />
         </div>
       </section>
-      <FinalCTA />
     </main>
   );
 }

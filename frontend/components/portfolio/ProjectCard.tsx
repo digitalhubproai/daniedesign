@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@/data/projects";
 import ImageReveal from "@/components/animations/ImageReveal";
+import TiltCard from "@/components/animations/TiltCard";
 
 type ProjectCardProps = {
   project: Project;
@@ -13,12 +14,18 @@ type ProjectCardProps = {
 
 export default function ProjectCard({ project, className, imgSizes }: ProjectCardProps) {
   return (
-    <Link
-      href={`/work/${project.slug}`}
-      data-cursor="VIEW"
-      className={`group relative block rounded-2xl transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-[0_35px_70px_-25px_rgba(255,77,31,0.35)] ${className ?? ""}`}
-      aria-label={`${project.title} — ${project.category}, ${project.year}`}
+    <TiltCard
+      className={className}
+      maxTilt={8}
+      clip={false}
+      glowColor="rgba(255, 77, 31, 0.22)"
     >
+      <Link
+        href={`/work/${project.slug}`}
+        data-cursor="VIEW"
+        className="group relative block h-full w-full overflow-hidden rounded-2xl"
+        aria-label={`${project.title} — ${project.category}, ${project.year}`}
+      >
       <div className="relative h-full w-full overflow-hidden rounded-2xl">
         <ImageReveal
           src={project.image}
@@ -46,6 +53,7 @@ export default function ProjectCard({ project, className, imgSizes }: ProjectCar
           </span>
         </div>
       </div>
-    </Link>
+      </Link>
+    </TiltCard>
   );
 }

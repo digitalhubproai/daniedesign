@@ -4,7 +4,6 @@ import SplitBlock from "@/components/solutions/SplitBlock";
 import Capabilities from "@/components/solutions/Capabilities";
 import ProcessSteps from "@/components/solutions/ProcessSteps";
 import RelatedWork from "@/components/solutions/RelatedWork";
-import FinalCTA from "@/components/home/FinalCTA";
 
 export const metadata: Metadata = {
   title: "UI/UX Design",
@@ -96,8 +95,6 @@ export default function UiUxPage() {
       <section className="pb-24 md:pb-32">
         <RelatedWork category="UI/UX" />
       </section>
-
-      <FinalCTA />
     </main>
   );
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/shared/PageHero";
-import FinalCTA from "@/components/home/FinalCTA";
 import { blogPosts } from "@/data/blog";
 import BlogClient from "./BlogClient";
 
@@ -24,8 +23,6 @@ export default function BlogPage() {
       />
 
       <BlogClient posts={blogPosts} />
-
-      <FinalCTA />
     </main>
   );
 }

@@ -11,7 +11,6 @@ import TiltCard from "@/components/animations/TiltCard";
 import ClientsMarquee from "@/components/home/ClientsMarquee";
 import ApproachSteps from "@/components/solutions/ApproachSteps";
 import AwardsShowcase from "@/components/solutions/AwardsShowcase";
-import FinalCTA from "@/components/home/FinalCTA";
 
 export const metadata: Metadata = {
   title: "About Us — Danie Design",
@@ -326,8 +325,6 @@ export default function AgencyPage() {
           </div>
         </div>
       </section>
-
-      <FinalCTA />
     </main>
   );
 }

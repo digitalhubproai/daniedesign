@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useRef, useEffect, type ReactNode } from "react";
+import { gsap, prefersReducedMotion, isCoarsePointer } from "@/lib/gsap";
 
 type TiltCardProps = {
   children: ReactNode;
@@ -8,67 +9,141 @@ type TiltCardProps = {
   maxTilt?: number;
   glow?: boolean;
   glowColor?: string;
+  glare?: boolean;
+  shadow?: boolean;
+  clip?: boolean;
 };
 
 export default function TiltCard({
   children,
   className,
-  maxTilt = 6,
+  maxTilt = 8,
   glow = true,
   glowColor = "rgba(255, 77, 31, 0.18)",
+  glare = true,
+  shadow = true,
+  clip = true,
 }: TiltCardProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
+  const glareRef = useRef<HTMLDivElement>(null);
 
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  useEffect(() => {
     const root = rootRef.current;
     const inner = innerRef.current;
     const glowEl = glowRef.current;
+    const glareEl = glareRef.current;
     if (!root || !inner) return;
+    if (prefersReducedMotion() || isCoarsePointer()) return;
 
-    const rect = root.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width - 0.5;
-    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    gsap.set(inner, {
+      transformPerspective: 900,
+      transformOrigin: "50% 50%",
+    });
+    if (shadow) {
+      gsap.set(inner, {
+        boxShadow: "0 18px 40px -18px rgba(0, 0, 0, 0.3)",
+      });
+    }
 
-    inner.style.transform = `rotateY(${px * maxTilt}deg) rotateX(${-py * maxTilt}deg) translateY(-4px)`;
+    // Springy rotation + lift + scale — the "premium" feel
+    const rotX = gsap.quickTo(inner, "rotationX", {
+      duration: 0.45,
+      ease: "power3.out",
+    });
+    const rotY = gsap.quickTo(inner, "rotationY", {
+      duration: 0.45,
+      ease: "power3.out",
+    });
+    const yTo = gsap.quickTo(inner, "y", {
+      duration: 0.45,
+      ease: "power3.out",
+    });
+    const sTo = gsap.quickTo(inner, "scale", {
+      duration: 0.45,
+      ease: "power3.out",
+    });
 
-    if (glowEl) {
+    const onEnter = () => {
+      sTo(1.04);
+      yTo(-10);
+      if (shadow) {
+        gsap.to(inner, {
+          boxShadow: "0 38px 70px -24px rgba(0, 0, 0, 0.45)",
+          duration: 0.4,
+          overwrite: "auto",
+        });
+      }
+      if (glowEl) glowEl.style.opacity = "1";
+      if (glareEl) glareEl.style.opacity = "1";
+    };
+
+    const onMove = (e: MouseEvent) => {
+      const rect = root.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+
+      rotY(px * maxTilt);
+      rotX(-py * maxTilt);
+
       const gx = (px + 0.5) * 100;
       const gy = (py + 0.5) * 100;
-      glowEl.style.background = `radial-gradient(420px circle at ${gx}% ${gy}%, ${glowColor}, transparent 70%)`;
-      glowEl.style.opacity = "1";
-    }
-  };
+      if (glowEl) {
+        glowEl.style.background = `radial-gradient(480px circle at ${gx}% ${gy}%, ${glowColor}, transparent 70%)`;
+      }
+      if (glareEl) {
+        glareEl.style.background = `radial-gradient(420px circle at ${gx}% ${gy}%, rgba(255, 255, 255, 0.14), transparent 45%)`;
+      }
+    };
 
-  const handleLeave = () => {
-    const inner = innerRef.current;
-    const glowEl = glowRef.current;
-    if (inner) inner.style.transform = "";
-    if (glowEl) {
-      glowEl.style.background = "";
-      glowEl.style.opacity = "0";
-    }
-  };
+    const onLeave = () => {
+      rotX(0);
+      rotY(0);
+      yTo(0);
+      sTo(1);
+      if (shadow) {
+        gsap.to(inner, {
+          boxShadow: "0 18px 40px -18px rgba(0, 0, 0, 0.3)",
+          duration: 0.4,
+          overwrite: "auto",
+        });
+      }
+      if (glowEl) glowEl.style.opacity = "0";
+      if (glareEl) glareEl.style.opacity = "0";
+    };
+
+    root.addEventListener("mouseenter", onEnter);
+    root.addEventListener("mousemove", onMove);
+    root.addEventListener("mouseleave", onLeave);
+    return () => {
+      root.removeEventListener("mouseenter", onEnter);
+      root.removeEventListener("mousemove", onMove);
+      root.removeEventListener("mouseleave", onLeave);
+    };
+  }, [maxTilt, glow, glare, shadow, glowColor]);
 
   return (
-    <div
-      ref={rootRef}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      className={className}
-      style={{ perspective: "1200px" }}
-    >
+    <div ref={rootRef} className={className} style={{ perspective: "1000px" }}>
       <div
         ref={innerRef}
-        className="relative h-full w-full overflow-hidden rounded-[inherit] transition-transform duration-300 ease-out will-change-transform"
+        className={`relative h-full w-full rounded-[inherit] will-change-transform ${
+          clip ? "overflow-hidden" : ""
+        }`}
       >
         {children}
         {glow && (
           <div
             ref={glowRef}
             className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300"
-            style={{ background: "transparent" }}
+            aria-hidden="true"
+          />
+        )}
+        {glare && (
+          <div
+            ref={glareRef}
+            className="pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300"
+            style={{ mixBlendMode: "overlay" }}
             aria-hidden="true"
           />
         )}

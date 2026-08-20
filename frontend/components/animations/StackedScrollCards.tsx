@@ -35,40 +35,11 @@ function ServiceCard({
   clickable?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
 
   const accent = service.accent;
   const accentFaint = hexToRgba(accent, 0.45);
   const accentSoft = hexToRgba(accent, 0.12);
   const accentGlow = hexToRgba(accent, 0.22);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    const content = contentRef.current;
-    const img = imgRef.current;
-    if (!root || !content || !img) return;
-
-    const handleMove = (e: MouseEvent) => {
-      const rect = root.getBoundingClientRect();
-      const px = (e.clientX - rect.left) / rect.width - 0.5;
-      const py = (e.clientY - rect.top) / rect.height - 0.5;
-      content.style.transform = `rotateY(${px * 4}deg) rotateX(${-py * 4}deg) translateY(-6px)`;
-      img.style.transform = `translate(${-px * 26}px, ${-py * 18}px) scale(1.16)`;
-    };
-
-    const handleLeave = () => {
-      content.style.transform = "";
-      img.style.transform = "";
-    };
-
-    root.addEventListener("mousemove", handleMove);
-    root.addEventListener("mouseleave", handleLeave);
-    return () => {
-      root.removeEventListener("mousemove", handleMove);
-      root.removeEventListener("mouseleave", handleLeave);
-    };
-  }, []);
 
   const card = (
     <div
@@ -76,7 +47,7 @@ function ServiceCard({
         rootRef.current = el;
         cardRef?.(el);
       }}
-      className="group relative h-full w-full min-h-[460px] overflow-hidden rounded-[2.25rem] border border-ink/10 bg-gradient-to-br from-[#181818] via-[#141414] to-[#0f0f0f] transition-all duration-500 hover:border-[var(--accent-border)] hover:shadow-[0_40px_90px_-30px_var(--accent-shadow)] [perspective:1400px] lg:min-h-0"
+      className="group relative h-full w-full min-h-[460px] overflow-hidden rounded-[2.25rem] border border-ink/10 bg-gradient-to-br from-[#181818] via-[#141414] to-[#0f0f0f] transition-all duration-500 hover:border-[var(--accent-border)] hover:shadow-[0_40px_90px_-30px_var(--accent-shadow)] lg:min-h-0"
       style={
         {
           "--accent": accent,
@@ -93,10 +64,7 @@ function ServiceCard({
         aria-hidden="true"
       />
 
-      <div
-        ref={contentRef}
-        className="relative grid h-full w-full grid-cols-1 will-change-transform md:grid-cols-12"
-      >
+      <div className="relative grid h-full w-full grid-cols-1 md:grid-cols-12">
         <div className="relative z-10 flex h-full flex-col justify-between p-7 md:col-span-7 md:p-9 xl:p-10">
           <div className="flex items-center justify-between">
             <span className="eyebrow flex items-center gap-2">
@@ -152,12 +120,11 @@ function ServiceCard({
 
         <div className="pointer-events-none relative hidden min-h-[260px] overflow-hidden md:absolute md:inset-y-0 md:right-0 md:z-20 md:block md:w-[45%] md:rounded-l-[2.25rem] md:transition-all md:duration-700 md:ease-[cubic-bezier(0.16,1,0.3,1)] md:group-hover:w-full md:group-hover:rounded-l-none md:group-hover:shadow-[-60px_0_80px_-30px_rgba(0,0,0,0.75)]">
           <Image
-            ref={imgRef}
             src={service.image}
             alt={service.title}
             fill
             sizes="(min-width: 768px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
           {/* Subtle soft gradient overlay only on hover to keep full color vibrant */}
           <div

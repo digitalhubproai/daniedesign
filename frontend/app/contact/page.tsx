@@ -7,7 +7,7 @@ import { contact } from "@/data/contact";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Tell us about your business, your project and your goals. Let's build something worth remembering.",
+    "Tell us about your business, your project and your goals.",
 };
 
 export default function ContactPage() {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight, Clock } from "lucide-react";
 import { blogPosts } from "@/data/blog";
 import SplitText from "@/components/animations/SplitText";
+import TiltCard from "@/components/animations/TiltCard";
 
 export default function BlogPreview() {
   const posts = blogPosts.slice(0, 3);
@@ -33,12 +34,18 @@ export default function BlogPreview() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {posts.map((post) => (
-            <Link
+            <TiltCard
               key={post.slug}
-              href={`/blog/${post.slug}`}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-500 hover:border-accent/35 hover:shadow-[0_10px_35px_rgba(255,77,31,0.06)]"
-              aria-label={`Read: ${post.title}`}
+              className="rounded-2xl"
+              maxTilt={7}
+              clip={false}
+              glowColor="rgba(255, 77, 31, 0.15)"
             >
+              <Link
+                href={`/blog/${post.slug}`}
+                className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-500 hover:border-accent/35 hover:shadow-[0_10px_35px_rgba(255,77,31,0.06)]"
+                aria-label={`Read: ${post.title}`}
+              >
               {/* Top Accent bar on hover */}
               <span className="absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-gradient-to-r from-accent via-orange-400 to-transparent transition-transform duration-500 group-hover:scale-x-100" />
 
@@ -86,6 +93,7 @@ export default function BlogPreview() {
                 </span>
               </div>
             </Link>
+            </TiltCard>
           ))}
         </div>
       </div>

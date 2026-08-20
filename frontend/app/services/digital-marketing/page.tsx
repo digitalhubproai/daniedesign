@@ -4,7 +4,6 @@ import SplitBlock from "@/components/solutions/SplitBlock";
 import Capabilities from "@/components/solutions/Capabilities";
 import ProcessSteps from "@/components/solutions/ProcessSteps";
 import RelatedWork from "@/components/solutions/RelatedWork";
-import FinalCTA from "@/components/home/FinalCTA";
 
 export const metadata: Metadata = {
   title: "Digital Marketing",
@@ -93,8 +92,6 @@ export default function DigitalMarketingPage() {
       <section className="pb-24 md:pb-32">
         <RelatedWork category="Marketing" />
       </section>
-
-      <FinalCTA />
     </main>
   );
 }
