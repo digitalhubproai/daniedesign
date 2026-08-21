@@ -16,7 +16,7 @@ export default function CreativeMarquee() {
         />
       </div>
       <div className="mt-16 border-y border-ink/10 py-8">
-        <Marquee items={marqueeItems} speed={70} />
+        <Marquee items={marqueeItems} speed={18} />
       </div>
     </section>
   );
