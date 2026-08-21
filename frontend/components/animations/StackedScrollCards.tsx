@@ -113,9 +113,7 @@ function ServiceCard({
             </ul>
           </div>
 
-          <div className="pt-2 font-mono text-[11px] text-muted/60">
-            ✦ Bespoke Deliverable • In-House Craft
-          </div>
+
         </div>
 
         <div className="pointer-events-none relative hidden min-h-[260px] overflow-hidden md:absolute md:inset-y-0 md:right-0 md:z-20 md:block md:w-[45%] md:rounded-l-[2.25rem] md:transition-all md:duration-700 md:ease-[cubic-bezier(0.16,1,0.3,1)] md:group-hover:w-full md:group-hover:rounded-l-none md:group-hover:shadow-[-60px_0_80px_-30px_rgba(0,0,0,0.75)]">
@@ -245,6 +243,11 @@ export default function StackedScrollCards() {
 
     mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
       const ctx = gsap.context(() => {
+        // cardEls defined first so getDistance closure can reference it safely
+        const cardEls = cardsRef.current.filter(
+          (el): el is HTMLElement => el !== null
+        );
+
         const getDistance = () => {
           const last = cardEls[cardEls.length - 1];
           if (!last) return 0;
@@ -252,15 +255,14 @@ export default function StackedScrollCards() {
           return Math.max(0, cardCenter - window.innerWidth / 2);
         };
 
-        const cardEls = cardsRef.current.filter(
-          (el): el is HTMLElement => el !== null
-        );
+        // Set initial track position explicitly
+        gsap.set(track, { x: 0 });
 
         const opTos = cardEls.map((el) =>
-          gsap.quickTo(el, "opacity", { duration: 0.45, ease: "power2.out" })
+          gsap.quickTo(el, "opacity", { duration: 0.5, ease: "power2.out" })
         );
         const scTos = cardEls.map((el) =>
-          gsap.quickTo(el, "scale", { duration: 0.45, ease: "power2.out" })
+          gsap.quickTo(el, "scale", { duration: 0.5, ease: "power2.out" })
         );
 
         cardEls.forEach((el, i) => {
@@ -278,9 +280,9 @@ export default function StackedScrollCards() {
             trigger: section,
             start: "top top",
             end: () => `+=${getDistance() + 400}`,
-            scrub: 0.6,
+            scrub: 1,           // smoother than 0.6
             pin: true,
-            anticipatePin: 1,
+            // anticipatePin removed — was causing a layout jump on pin
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               stRef.current = self;
@@ -327,19 +329,9 @@ export default function StackedScrollCards() {
 
         tl.to(track, { x: () => -getDistance(), duration: 1 });
 
-        gsap.fromTo(
-          cardEls,
-          { xPercent: 8, opacity: 0 },
-          {
-            xPercent: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.1,
-            ease: "power3.out",
-            delay: 0.2,
-            overwrite: "auto",
-          }
-        );
+        // Removed the standalone gsap.fromTo entry animation — it was overriding
+        // the scroll-based opacity set by gsap.set above, making all cards
+        // appear at full opacity before the user started scrolling.
       }, section);
 
       return () => ctx.revert();
@@ -429,7 +421,7 @@ export default function StackedScrollCards() {
                 <div
                   ref={progressRef}
                   className="h-full w-full origin-left"
-                  style={{ background: services[0].accent }}
+                  style={{ background: services[0].accent, transform: "scaleX(0)" }}
                 />
               </div>
             </div>
