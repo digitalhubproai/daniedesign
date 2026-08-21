@@ -4,6 +4,7 @@ import { ArrowUpRight, Clock } from "lucide-react";
 import { blogPosts } from "@/data/blog";
 import SplitText from "@/components/animations/SplitText";
 import TiltCard from "@/components/animations/TiltCard";
+import Button from "@/components/shared/Button";
 
 export default function BlogPreview() {
   const posts = blogPosts.slice(0, 3);
@@ -23,13 +24,9 @@ export default function BlogPreview() {
               className="display text-3xl font-bold leading-[1.08] tracking-tight text-ink sm:text-4xl md:text-5xl"
             />
           </div>
-          <Link
-            href="/blog"
-            className="group inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink transition-all hover:border-accent/50 hover:text-accent"
-          >
+          <Button href="/blog" variant="outline" size="md">
             All Insights
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

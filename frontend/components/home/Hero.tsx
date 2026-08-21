@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useRef } from "react";
 import { useEffect } from "react";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { gsap } from "@/lib/gsap";
 import { heroStats } from "@/data/stats";
 import Counter from "@/components/animations/Counter";
+import Button from "@/components/shared/Button";
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -154,23 +154,12 @@ export default function Hero() {
           </p>
 
           <div data-hero-ctas className="flex flex-wrap items-center gap-4">
-            <Link
-              href="/contact"
-              data-cursor="OPEN"
-              className="group inline-flex items-center gap-3 rounded-full bg-accent px-8 py-4 text-xs font-bold uppercase tracking-widest text-[#0e0e0e] shadow-[0_10px_30px_rgba(255,77,31,0.35)] transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_15px_40px_rgba(255,77,31,0.5)] md:text-sm"
-            >
+            <Button href="/contact" variant="primary" size="lg">
               Start a Project
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-            <Link
-              href="/work"
-              className="group inline-flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-ink transition-colors hover:text-accent md:text-sm"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/25 transition-all duration-300 group-hover:border-accent group-hover:bg-accent group-hover:text-[#0e0e0e]">
-                <ArrowRight className="h-4 w-4 rotate-[-45deg]" />
-              </span>
+            </Button>
+            <Button href="/work" variant="circle" size="lg">
               View Our Work
-            </Link>
+            </Button>
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowUpRight, Clock, Search, BookOpen } from "lucide-react";
 import { BlogPost } from "@/data/blog";
 import TiltCard from "@/components/animations/TiltCard";
+import Button from "@/components/shared/Button";
 
 export default function BlogClient({ posts }: { posts: BlogPost[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -224,13 +225,9 @@ export default function BlogClient({ posts }: { posts: BlogPost[] }) {
               <p className="mt-2 max-w-xl text-xs leading-relaxed text-ink/65 md:text-sm">
                 From brand architecture and bespoke UI/UX to Next.js engineering, we build digital flagships that convert.
               </p>
-              <Link
-                href="/contact"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-[#0e0e0e] transition-transform duration-300 hover:scale-105"
-              >
+              <Button href="/contact" variant="primary" size="md" className="mt-6">
                 Start A Project
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
+              </Button>
             </div>
 
           </div>

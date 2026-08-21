@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import SplitText from "@/components/animations/SplitText";
 
 type PageHeroProps = {
   eyebrow: string;
@@ -22,14 +23,15 @@ export default function PageHero({ eyebrow, title, intro, meta, children }: Page
         {eyebrow}
       </motion.p>
 
-      <motion.h1
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+      <SplitText
+        as="h1"
+        mode="chars"
+        text={title}
+        delay={0.3}
+        stagger={0.05}
+        start="top 95%"
         className="display max-w-6xl text-[10vw] font-medium leading-[1] tracking-tight sm:text-5xl md:text-6xl lg:text-[4.5vw]"
-      >
-        {title}
-      </motion.h1>
+      />
 
       {intro && (
         <motion.p

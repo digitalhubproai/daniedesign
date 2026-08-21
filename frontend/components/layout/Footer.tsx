@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowUp,
   ArrowUpRight,
-  Clock,
   Facebook,
   Twitter,
   Instagram,
@@ -161,31 +160,6 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
   );
 }
 
-function LocalTime() {
-  const [time, setTime] = useState("");
-
-  useEffect(() => {
-    const fmt = () =>
-      setTime(
-        new Intl.DateTimeFormat("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }).format(new Date())
-      );
-    fmt();
-    const id = setInterval(fmt, 30_000);
-    return () => clearInterval(id);
-  }, []);
-
-  return (
-    <div className="mt-6 flex items-center gap-2 font-mono text-[11px] text-muted">
-      <Clock className="h-3.5 w-3.5 text-accent" />
-      <span>Studio time — {time || "--:--"} PKT</span>
-    </div>
-  );
-}
-
 function BackToTop() {
   return (
     <button
@@ -245,7 +219,6 @@ export default function Footer() {
             >
               {contact.email}
             </a>
-            <LocalTime />
           </div>
 
           <nav aria-label="Footer company links" className="lg:col-span-2">

@@ -38,7 +38,7 @@ export default function TiltCard({
     if (prefersReducedMotion() || isCoarsePointer()) return;
 
     gsap.set(inner, {
-      transformPerspective: 900,
+      transformPerspective: 1100,
       transformOrigin: "50% 50%",
     });
     if (shadow) {
@@ -49,29 +49,33 @@ export default function TiltCard({
 
     // Springy rotation + lift + scale — the "premium" feel
     const rotX = gsap.quickTo(inner, "rotationX", {
-      duration: 0.45,
-      ease: "power3.out",
+      duration: 0.6,
+      ease: "back.out(1.4)",
     });
     const rotY = gsap.quickTo(inner, "rotationY", {
-      duration: 0.45,
-      ease: "power3.out",
+      duration: 0.6,
+      ease: "back.out(1.4)",
+    });
+    const rotZ = gsap.quickTo(inner, "rotationZ", {
+      duration: 0.6,
+      ease: "back.out(1.4)",
     });
     const yTo = gsap.quickTo(inner, "y", {
-      duration: 0.45,
-      ease: "power3.out",
+      duration: 0.6,
+      ease: "back.out(1.2)",
     });
     const sTo = gsap.quickTo(inner, "scale", {
-      duration: 0.45,
-      ease: "power3.out",
+      duration: 0.6,
+      ease: "back.out(1.2)",
     });
 
     const onEnter = () => {
-      sTo(1.04);
-      yTo(-10);
+      sTo(1.06);
+      yTo(-12);
       if (shadow) {
         gsap.to(inner, {
-          boxShadow: "0 38px 70px -24px rgba(0, 0, 0, 0.45)",
-          duration: 0.4,
+          boxShadow: "0 44px 80px -24px rgba(0, 0, 0, 0.5)",
+          duration: 0.5,
           overwrite: "auto",
         });
       }
@@ -86,6 +90,7 @@ export default function TiltCard({
 
       rotY(px * maxTilt);
       rotX(-py * maxTilt);
+      rotZ(px * -py * 10);
 
       const gx = (px + 0.5) * 100;
       const gy = (py + 0.5) * 100;
@@ -93,19 +98,20 @@ export default function TiltCard({
         glowEl.style.background = `radial-gradient(480px circle at ${gx}% ${gy}%, ${glowColor}, transparent 70%)`;
       }
       if (glareEl) {
-        glareEl.style.background = `radial-gradient(420px circle at ${gx}% ${gy}%, rgba(255, 255, 255, 0.14), transparent 45%)`;
+        glareEl.style.background = `radial-gradient(420px circle at ${gx}% ${gy}%, rgba(255, 255, 255, 0.2), transparent 45%)`;
       }
     };
 
     const onLeave = () => {
       rotX(0);
       rotY(0);
+      rotZ(0);
       yTo(0);
       sTo(1);
       if (shadow) {
         gsap.to(inner, {
           boxShadow: "0 18px 40px -18px rgba(0, 0, 0, 0.3)",
-          duration: 0.4,
+          duration: 0.5,
           overwrite: "auto",
         });
       }

@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { projects } from "@/data/projects";
 import ProjectCard from "@/components/portfolio/ProjectCard";
 import SplitText from "@/components/animations/SplitText";
+import Button from "@/components/shared/Button";
 
 export default function FeaturedWork() {
   const recent = projects.slice(0, 6);
@@ -28,13 +27,9 @@ export default function FeaturedWork() {
             <span className="max-w-[10rem] text-xs leading-relaxed text-muted">
               Projects delivered for brands in four countries
             </span>
-            <Link
-              href="/work"
-              className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-ink/20 px-6 py-3 text-xs font-bold uppercase tracking-widest text-ink transition-colors hover:border-accent hover:text-accent"
-            >
+            <Button href="/work" variant="outline" size="md">
               View All Work
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </Link>
+            </Button>
           </div>
         </div>
 

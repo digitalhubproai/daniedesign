@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/shared/PageHero";
 import SplitBlock from "@/components/solutions/SplitBlock";
 import Capabilities from "@/components/solutions/Capabilities";
-import ProcessSteps from "@/components/solutions/ProcessSteps";
-import RelatedWork from "@/components/solutions/RelatedWork";
+import SolutionOutro from "@/components/solutions/SolutionOutro";
 
 export const metadata: Metadata = {
   title: "UI/UX Design",
@@ -85,16 +84,78 @@ export default function UiUxPage() {
         />
       </section>
 
-      <section className="pb-24 md:pb-32">
-        <ProcessSteps
-          title="The design process."
-          steps={["Research", "User Flows", "Wireframes", "Visual Design", "Prototype", "Testing", "Handoff"]}
-        />
-      </section>
-
-      <section className="pb-24 md:pb-32">
-        <RelatedWork category="UI/UX" />
-      </section>
+      <SolutionOutro
+        statsTitle="Design that shows up in the numbers."
+        stats={[
+          { value: 98, suffix: "%", label: "Client satisfaction" },
+          { value: 120, suffix: "+", label: "Products shipped" },
+          { value: 24, suffix: "", label: "Countries served" },
+          { value: 12, suffix: "+", label: "Years of craft" },
+        ]}
+        processTitle="The design process."
+        processTagline="Seven focused phases — from raw research to a developer-ready handoff, one connected design team."
+        processSteps={[
+          {
+            number: "01",
+            timeframe: "2–4 Days",
+            title: "Research",
+            description:
+              "Interviews, analytics and usability observation to understand who the product serves.",
+            deliverables: ["Research Brief", "User Insights", "Personas"],
+          },
+          {
+            number: "02",
+            timeframe: "1 Week",
+            title: "User Flows",
+            description:
+              "Mapping every journey users take through the product — before any screen is designed.",
+            deliverables: ["Journey Maps", "Flow Diagrams", "Edge Cases"],
+          },
+          {
+            number: "03",
+            timeframe: "5–7 Days",
+            title: "Wireframes",
+            description:
+              "Black-and-white structure for every key screen, so the expensive mistakes stay on paper.",
+            deliverables: ["Low-fi Wireframes", "IA Map", "Annotations"],
+          },
+          {
+            number: "04",
+            timeframe: "2 Weeks",
+            title: "Visual Design",
+            description:
+              "High-fidelity UI — typography, color, spacing, motion and states that people enjoy using.",
+            deliverables: ["UI Screens", "Style Guide", "Motion Specs"],
+          },
+          {
+            number: "05",
+            timeframe: "1 Week",
+            title: "Prototype",
+            description:
+              "Clickable prototypes that let stakeholders feel the product before code exists.",
+            deliverables: ["Interactive Prototype", "Handoff Deck", "Logic Notes"],
+          },
+          {
+            number: "06",
+            timeframe: "3–5 Days",
+            title: "Testing",
+            description:
+              "Usability tests with real users — fixes feed straight back into the design.",
+            deliverables: ["Test Scripts", "Findings Report", "Fix Log"],
+          },
+          {
+            number: "07",
+            timeframe: "3 Days",
+            title: "Handoff",
+            description:
+              "A token-based design system and developer-ready assets for a seamless build.",
+            deliverables: ["Design System", "Dev Specs", "Asset Pack"],
+          },
+        ]}
+        ctaTitle="Have a product that deserves better UX?"
+        ctaCopy="Tell us where your users get stuck — we'll turn it into a flow they enjoy."
+        category="UI/UX"
+      />
     </main>
   );
 }

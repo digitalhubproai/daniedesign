@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/shared/PageHero";
 import SplitBlock from "@/components/solutions/SplitBlock";
 import Capabilities from "@/components/solutions/Capabilities";
-import ProcessSteps from "@/components/solutions/ProcessSteps";
-import RelatedWork from "@/components/solutions/RelatedWork";
+import SolutionOutro from "@/components/solutions/SolutionOutro";
 
 export const metadata: Metadata = {
   title: "Branding",
@@ -86,16 +85,70 @@ export default function BrandingPage() {
         />
       </section>
 
-      <section className="pb-24 md:pb-32">
-        <ProcessSteps
-          title="The branding process."
-          steps={["Discovery", "Strategy", "Concept", "Identity Development", "Guidelines", "Brand Rollout"]}
-        />
-      </section>
-
-      <section className="pb-24 md:pb-32">
-        <RelatedWork category="Branding" />
-      </section>
+      <SolutionOutro
+        statsTitle="Identity work that compounds."
+        stats={[
+          { value: 98, suffix: "%", label: "Client satisfaction" },
+          { value: 120, suffix: "+", label: "Brands launched" },
+          { value: 24, suffix: "", label: "Countries served" },
+          { value: 12, suffix: "+", label: "Years of craft" },
+        ]}
+        processTitle="The branding process."
+        processTagline="Six focused phases — from first conversation to a brand that ships everywhere."
+        processSteps={[
+          {
+            number: "01",
+            timeframe: "2–4 Days",
+            title: "Discovery",
+            description:
+              "Stakeholder interviews, market mapping and brand audit to find the real gap.",
+            deliverables: ["Brand Audit", "Market Map", "Kickoff Brief"],
+          },
+          {
+            number: "02",
+            timeframe: "1 Week",
+            title: "Strategy",
+            description:
+              "Positioning, personality and messaging that the whole brand hangs on.",
+            deliverables: ["Positioning Deck", "Personality", "Messaging"],
+          },
+          {
+            number: "03",
+            timeframe: "5–7 Days",
+            title: "Concept",
+            description:
+              "Two creative directions — moodboards and visual routes to react against.",
+            deliverables: ["Moodboards", "Concept Routes", "Direction Pick"],
+          },
+          {
+            number: "04",
+            timeframe: "2 Weeks",
+            title: "Identity Development",
+            description:
+              "Logo, color, type and layout grids crafted into a working identity system.",
+            deliverables: ["Logo Suite", "Color & Type", "Layout Grids"],
+          },
+          {
+            number: "05",
+            timeframe: "1 Week",
+            title: "Guidelines",
+            description:
+              "The rules of the road — a brand book that keeps everything recognizable.",
+            deliverables: ["Brand Book", "Usage Rules", "Templates"],
+          },
+          {
+            number: "06",
+            timeframe: "Ongoing",
+            title: "Brand Rollout",
+            description:
+              "Applications and assets that carry the identity into the real world.",
+            deliverables: ["Applications", "Asset Library", "Launch Kit"],
+          },
+        ]}
+        ctaTitle="Have a brand that looks like everyone else?"
+        ctaCopy="Tell us where you are today — we'll map the identity system that makes you unmistakable."
+        category="Branding"
+      />
     </main>
   );
 }

@@ -203,9 +203,13 @@ export default function ImpactStats() {
                   </p>
                 </div>
 
-                <span className="inline-flex shrink-0 items-center gap-3 rounded-full bg-accent px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-[#0e0e0e] transition-transform duration-300 group-hover:scale-105">
-                  Start the conversation
-                  <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <span className="group/btn relative inline-flex shrink-0 items-center gap-3 overflow-hidden rounded-full bg-accent px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-[#0e0e0e] shadow-[0_8px_25px_rgba(255,77,31,0.4)] transition-transform duration-300 group-hover:scale-105">
+                  <span
+                    className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover/btn:translate-x-full"
+                    aria-hidden="true"
+                  />
+                  <span className="relative">Start the conversation</span>
+                  <ArrowUpRight className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:rotate-45" />
                 </span>
               </Link>
             </div>

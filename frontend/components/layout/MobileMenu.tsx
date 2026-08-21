@@ -99,9 +99,13 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
               href="/contact"
               onClick={onClose}
               data-cursor="OPEN"
-              className="inline-flex w-full items-center justify-center rounded-full bg-accent py-4 text-base font-bold text-[#0e0e0e]"
+              className="group relative inline-flex w-full items-center justify-center overflow-hidden rounded-full bg-accent py-4 text-base font-bold text-[#0e0e0e] shadow-[0_10px_30px_rgba(255,77,31,0.4)]"
             >
-              Let&apos;s Talk
+              <span
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
+                aria-hidden="true"
+              />
+              <span className="relative">Let&apos;s Talk</span>
             </Link>
             <div className="flex flex-wrap gap-x-6 gap-y-2">
               {contact.socials.map((s) => (

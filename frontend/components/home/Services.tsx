@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import SplitText from "@/components/animations/SplitText";
 import StackedScrollCards from "@/components/animations/StackedScrollCards";
+import Button from "@/components/shared/Button";
 
 export default function Services() {
   return (
@@ -24,13 +23,9 @@ export default function Services() {
             Brand strategy, design, technology and marketing — each one
             strengthens the others. Scroll to explore how they fit together.
           </p>
-          <Link
-            href="/services"
-            className="group inline-flex w-fit items-center gap-2 text-sm font-bold uppercase tracking-widest text-ink transition-colors hover:text-accent"
-          >
+          <Button href="/services" variant="circle" size="md">
             All Solutions
-            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-          </Link>
+          </Button>
         </div>
       </div>
 

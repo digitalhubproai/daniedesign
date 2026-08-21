@@ -2,11 +2,13 @@
 
 import { useRef } from "react";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 export default function SmoothScroll() {
   const initialized = useRef(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (initialized.current) return;
@@ -29,6 +31,14 @@ export default function SmoothScroll() {
       lenis.destroy();
     };
   }, []);
+
+  // Re-measure scroll trigger positions after client-side route changes
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [pathname]);
 
   return null;
 }

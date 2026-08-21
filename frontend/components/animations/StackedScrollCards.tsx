@@ -368,34 +368,37 @@ export default function StackedScrollCards() {
           ref={sectionRef}
           className="relative h-screen overflow-hidden"
         >
-          <div
-            ref={trackRef}
-            className="flex h-full w-max items-center gap-7 px-10 xl:gap-10"
-          >
-            {slides.map((slide, i) => (
-              <div
-                key={slide.type === "service" ? slide.service.number : `cta-${i}`}
-                className="h-full w-[92vw] shrink-0 lg:h-[64vh] lg:w-[62vw] xl:h-[66vh] xl:w-[58vw]"
-              >
-                {slide.type === "service" ? (
-                  <ServiceCard
-                    service={slide.service}
-                    cardRef={(el) => {
-                      if (el) cardsRef.current[i] = el;
-                    }}
-                  />
-                ) : (
-                  <CTACard
-                    cardRef={(el) => {
-                      if (el) cardsRef.current[i] = el;
-                    }}
-                  />
-                )}
-              </div>
-            ))}
+          <div className="mx-auto h-full max-w-[1440px] px-5 md:px-10">
+            <div
+              ref={trackRef}
+              className="flex h-full w-max items-center gap-7 xl:gap-10"
+            >
+              {slides.map((slide, i) => (
+                <div
+                  key={slide.type === "service" ? slide.service.number : `cta-${i}`}
+                  className="h-full w-[92vw] shrink-0 lg:h-[64vh] lg:w-[62vw] xl:h-[66vh] xl:w-[58vw]"
+                >
+                  {slide.type === "service" ? (
+                    <ServiceCard
+                      service={slide.service}
+                      cardRef={(el) => {
+                        if (el) cardsRef.current[i] = el;
+                      }}
+                    />
+                  ) : (
+                    <CTACard
+                      cardRef={(el) => {
+                        if (el) cardsRef.current[i] = el;
+                      }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="absolute inset-x-0 bottom-8 z-10 hidden items-end justify-between px-10 lg:flex">
+          <div className="absolute inset-x-0 bottom-8 z-10 hidden lg:block">
+            <div className="mx-auto flex max-w-[1440px] items-end justify-between px-5 md:px-10">
             <button
               ref={prevRef}
               onClick={() => goTo(currentRef.current - 1)}
@@ -439,11 +442,12 @@ export default function StackedScrollCards() {
             >
               <ArrowRight className="h-4 w-4" />
             </button>
+            </div>
           </div>
         </section>
       </div>
 
-      <div className="flex flex-col gap-8 px-5 py-10 md:px-10 lg:hidden">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-5 py-10 md:px-10 lg:hidden">
         {services.map((service) => (
           <ServiceCard key={service.number} service={service} clickable />
         ))}

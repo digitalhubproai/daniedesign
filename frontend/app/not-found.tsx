@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Button from "@/components/shared/Button";
 
 export default function NotFound() {
   return (
@@ -10,12 +10,9 @@ export default function NotFound() {
       <p className="mt-6 max-w-md text-sm leading-relaxed text-muted md:text-base">
         The page you&apos;re looking for doesn&apos;t exist — but we&apos;d love to design it for you.
       </p>
-      <Link
-        href="/"
-        className="mt-10 inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-xs font-bold uppercase tracking-widest text-[#0e0e0e] transition-transform duration-300 hover:scale-105"
-      >
+      <Button href="/" variant="primary" size="lg" className="mt-10">
         Back to Home
-      </Link>
+      </Button>
     </main>
   );
 }

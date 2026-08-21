@@ -172,10 +172,14 @@ export default function Navbar() {
           <Link
             href="/contact"
             data-cursor="OPEN"
-            className="group hidden items-center gap-1.5 rounded-full bg-accent px-4 py-1.5 text-xs font-bold text-[#0e0e0e] transition-transform duration-300 hover:scale-[1.04] sm:inline-flex md:text-sm"
+            className="group relative hidden items-center gap-1.5 overflow-hidden rounded-full bg-accent px-4 py-1.5 text-xs font-bold text-[#0e0e0e] shadow-[0_4px_16px_rgba(255,77,31,0.35)] transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_6px_24px_rgba(255,77,31,0.55)] sm:inline-flex md:text-sm"
           >
-            Let&apos;s Talk
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-45" />
+            <span
+              className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
+              aria-hidden="true"
+            />
+            <span className="relative">Let&apos;s Talk</span>
+            <ArrowUpRight className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-45" />
           </Link>
           <motion.button
             type="button"

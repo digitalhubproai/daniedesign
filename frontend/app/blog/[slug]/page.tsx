@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Clock, Tag, Share2, CheckCircle2 } from "lucide-react";
 import { blogPosts, getPost } from "@/data/blog";
+import Button from "@/components/shared/Button";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -154,13 +155,9 @@ export default async function BlogPostPage({ params }: Props) {
                   Let&apos;s engineer a bespoke digital experience that drives measurable commercial growth.
                 </p>
 
-                <Link
-                  href="/contact"
-                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-[#0e0e0e] transition-transform duration-300 hover:scale-105"
-                >
+                <Button href="/contact" variant="primary" size="md" className="mt-6">
                   Start The Conversation
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
+                </Button>
               </div>
             </div>
           </div>

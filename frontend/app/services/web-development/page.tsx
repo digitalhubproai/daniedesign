@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/shared/PageHero";
 import SplitBlock from "@/components/solutions/SplitBlock";
 import Capabilities from "@/components/solutions/Capabilities";
-import ProcessSteps from "@/components/solutions/ProcessSteps";
-import RelatedWork from "@/components/solutions/RelatedWork";
+import SolutionOutro from "@/components/solutions/SolutionOutro";
 
 export const metadata: Metadata = {
   title: "Website Development",
@@ -75,16 +74,78 @@ export default function WebDevelopmentPage() {
         />
       </section>
 
-      <section className="pb-24 md:pb-32">
-        <ProcessSteps
-          title="The development process."
-          steps={["Discovery", "Planning", "Design", "Development", "QA", "Launch", "Optimization"]}
-        />
-      </section>
-
-      <section className="pb-24 md:pb-32">
-        <RelatedWork category="Web" />
-      </section>
+      <SolutionOutro
+        statsTitle="Built to be measured."
+        stats={[
+          { value: 98, suffix: "%", label: "Client satisfaction" },
+          { value: 90, suffix: "+", label: "Lighthouse scores" },
+          { value: 24, suffix: "", label: "Countries served" },
+          { value: 12, suffix: "+", label: "Years of craft" },
+        ]}
+        processTitle="The development process."
+        processTagline="Seven focused phases — from discovery to a fast, scalable site in production."
+        processSteps={[
+          {
+            number: "01",
+            timeframe: "2–4 Days",
+            title: "Discovery",
+            description:
+              "Goals, technical audit and platform fit — the stack chosen on evidence.",
+            deliverables: ["Technical Audit", "Stack Pick", "Scope Brief"],
+          },
+          {
+            number: "02",
+            timeframe: "1 Week",
+            title: "Planning",
+            description:
+              "Architecture, data model, performance budget and the build roadmap.",
+            deliverables: ["Architecture", "Data Model", "Roadmap"],
+          },
+          {
+            number: "03",
+            timeframe: "2 Weeks",
+            title: "Design",
+            description:
+              "UI implementation planning — tokens, breakpoints and motion specs.",
+            deliverables: ["Design Tokens", "Breakpoint Map", "Motion Specs"],
+          },
+          {
+            number: "04",
+            timeframe: "2–3 Weeks",
+            title: "Development",
+            description:
+              "Clean, high-performance builds with silky 60fps interactions and CMS flow.",
+            deliverables: ["Frontend Build", "CMS Setup", "API Integration"],
+          },
+          {
+            number: "05",
+            timeframe: "3–5 Days",
+            title: "QA",
+            description:
+              "Cross-browser, responsive and accessibility passes against the budget.",
+            deliverables: ["Test Matrix", "Bug Fixes", "A11y Pass"],
+          },
+          {
+            number: "06",
+            timeframe: "3–5 Days",
+            title: "Launch",
+            description:
+              "Cloud deploy, DNS, analytics and a stress-tested go-live.",
+            deliverables: ["Cloud Deploy", "DNS Setup", "Analytics"],
+          },
+          {
+            number: "07",
+            timeframe: "Ongoing",
+            title: "Optimization",
+            description:
+              "Speed, SEO and conversion iteration to keep the site compounding.",
+            deliverables: ["Perf Report", "SEO Fixes", "Iteration Cycle"],
+          },
+        ]}
+        ctaTitle="Got a design that needs to ship fast?"
+        ctaCopy="Tell us about the build — we'll pick the stack, engineer it properly and put it in production."
+        category="Web"
+      />
     </main>
   );
 }

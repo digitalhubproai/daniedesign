@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import PageHero from "@/components/shared/PageHero";
 import SplitText from "@/components/animations/SplitText";
 import ImageReveal from "@/components/animations/ImageReveal";
@@ -11,6 +11,7 @@ import TiltCard from "@/components/animations/TiltCard";
 import ClientsMarquee from "@/components/home/ClientsMarquee";
 import ApproachSteps from "@/components/solutions/ApproachSteps";
 import AwardsShowcase from "@/components/solutions/AwardsShowcase";
+import Button from "@/components/shared/Button";
 
 export const metadata: Metadata = {
   title: "About Us — Danie Design",
@@ -220,14 +221,9 @@ export default function AgencyPage() {
                 deliverable.
               </p>
             </div>
-            <Link
-              href="/services"
-              data-cursor="OPEN"
-              className="group mt-10 inline-flex items-center gap-3 rounded-full bg-accent px-7 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-[#0e0e0e] transition-transform duration-300 hover:scale-105"
-            >
+            <Button href="/services" variant="primary" size="md" className="mt-10">
               Explore Services
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
+            </Button>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {statCards.map((stat) => (

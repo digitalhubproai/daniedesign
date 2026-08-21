@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/shared/PageHero";
 import SplitBlock from "@/components/solutions/SplitBlock";
 import Capabilities from "@/components/solutions/Capabilities";
-import ProcessSteps from "@/components/solutions/ProcessSteps";
-import RelatedWork from "@/components/solutions/RelatedWork";
+import SolutionOutro from "@/components/solutions/SolutionOutro";
 
 export const metadata: Metadata = {
   title: "Digital Marketing",
@@ -82,16 +81,70 @@ export default function DigitalMarketingPage() {
         />
       </section>
 
-      <section className="pb-24 md:pb-32">
-        <ProcessSteps
-          title="The growth process."
-          steps={["Research", "Strategy", "Campaign Setup", "Execution", "Optimization", "Reporting"]}
-        />
-      </section>
-
-      <section className="pb-24 md:pb-32">
-        <RelatedWork category="Marketing" />
-      </section>
+      <SolutionOutro
+        statsTitle="Growth you can track."
+        stats={[
+          { value: 98, suffix: "%", label: "Client satisfaction" },
+          { value: 120, suffix: "+", label: "Campaigns run" },
+          { value: 24, suffix: "", label: "Countries served" },
+          { value: 12, suffix: "+", label: "Years of craft" },
+        ]}
+        processTitle="The growth process."
+        processTagline="Six focused phases — from research to reporting, one connected growth team."
+        processSteps={[
+          {
+            number: "01",
+            timeframe: "1 Week",
+            title: "Research",
+            description:
+              "Audience, competitor and search landscape mapping to find the opportunity.",
+            deliverables: ["Audience Map", "Competitor Scan", "Search Landscape"],
+          },
+          {
+            number: "02",
+            timeframe: "1 Week",
+            title: "Strategy",
+            description:
+              "Channels, budget split and KPIs chosen on evidence, not guesswork.",
+            deliverables: ["Channel Plan", "Budget Split", "Success KPIs"],
+          },
+          {
+            number: "03",
+            timeframe: "1 Week",
+            title: "Campaign Setup",
+            description:
+              "Tracking, funnels and creative systems wired before spend starts.",
+            deliverables: ["Tracking Setup", "Funnels", "Creative Kit"],
+          },
+          {
+            number: "04",
+            timeframe: "Ongoing",
+            title: "Execution",
+            description:
+              "Paid, organic and content running on one connected creative system.",
+            deliverables: ["Live Campaigns", "Content Calendar", "Community"],
+          },
+          {
+            number: "05",
+            timeframe: "Ongoing",
+            title: "Optimization",
+            description:
+              "A/B testing and budget shifting toward what the data rewards.",
+            deliverables: ["A/B Tests", "Bid Adjustments", "Creative Refresh"],
+          },
+          {
+            number: "06",
+            timeframe: "Monthly",
+            title: "Reporting",
+            description:
+              "Pipeline and revenue reporting — what worked, what didn't, what's next.",
+            deliverables: ["Monthly Report", "ROI Analysis", "Next Moves"],
+          },
+        ]}
+        ctaTitle="Ready to turn attention into revenue?"
+        ctaCopy="Tell us where your growth is stuck — we'll build the channel plan and hold it accountable."
+        category="Marketing"
+      />
     </main>
   );
 }
