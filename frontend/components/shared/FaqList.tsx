@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
-import { Check, Link2, Minus, Plus, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  AnimatePresence,
+  MotionConfig,
+  motion,
+  type Transition,
+  type Variants,
+} from "framer-motion";
+import { Minus, Plus, Search } from "lucide-react";
 
 export type FaqItem = {
   category: string;
@@ -24,99 +30,110 @@ const slugify = (s: string) =>
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const flapOuterVariants: Variants = {
-  closed: {
-    rotateX: -105,
-    transition: { duration: 0.26, delay: 0.16, ease: [0.55, 0, 0.85, 0.35] },
-  },
-  open: {
-    rotateX: 0,
+/*
+  Motion system for the accordion:
+  - Opening uses a heavy spring (slow attack, soft settle) so the card feels
+    like it has mass.
+  - Closing uses a quick ease-in curve — collapsing should never feel sluggish.
+  - Content children unmask top-to-bottom via the parent's overflow clip, so
+    their own motion is only a subtle rise — no squish, no fold.
+*/
+
+const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
+const EASE_IN_OUT = [0.65, 0, 0.35, 1] as const;
+
+const springGentle: Transition = {
+  type: "spring",
+  stiffness: 210,
+  damping: 26,
+  mass: 0.9,
+};
+
+const answerVariants: Variants = {
+  collapsed: {
+    height: 0,
+    opacity: 1,
     transition: {
-      type: "spring",
-      stiffness: 240,
-      damping: 14.5,
-      mass: 1,
-      delay: 0.05,
+      height: { type: "spring", stiffness: 420, damping: 36, mass: 0.7 },
+      opacity: { duration: 0.12 },
+    },
+  },
+  expanded: {
+    height: "auto",
+    opacity: 1,
+    transition: {
+      height: springGentle,
+      delayChildren: 0.08,
+      staggerChildren: 0.07,
     },
   },
 };
 
-const flapInnerVariants: Variants = {
-  closed: {
-    rotateX: -80,
-    transition: { duration: 0.22, ease: [0.55, 0, 0.85, 0.35] },
+const revealVariants: Variants = {
+  collapsed: { opacity: 0, y: 14, transition: { duration: 0.12, ease: EASE_IN_OUT } },
+  expanded: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE_OUT_EXPO } },
+};
+
+const railVariants: Variants = {
+  collapsed: { scaleY: 0, opacity: 0, transition: { duration: 0.18, ease: EASE_IN_OUT } },
+  expanded: {
+    scaleY: 1,
+    opacity: 1,
+    transition: { duration: 0.65, ease: EASE_OUT_EXPO },
   },
+};
+
+const glowVariants: Variants = {
+  collapsed: { opacity: 0, transition: { duration: 0.25 } },
+  expanded: {
+    opacity: 1,
+    transition: { type: "spring", stiffness: 90, damping: 18, delay: 0.1 },
+  },
+};
+
+const iconSpring: Transition = { type: "spring", stiffness: 420, damping: 26, mass: 0.6 };
+
+/*
+  Light-sweep (shine) across the card — fires on BOTH transitions:
+  - opening: streak travels left → right, riding just behind the reveal
+  - closing: streak travels right → left, a touch faster
+  The end position of each state is the start position of the other, so the
+  element rests off-screen between sweeps with no jump.
+*/
+const shineVariants: Variants = {
   open: {
-    rotateX: 0,
+    x: ["-140%", "540%"],
+    opacity: [0, 1, 1, 0],
+    skewX: -12,
     transition: {
-      type: "spring",
-      stiffness: 230,
-      damping: 14,
-      mass: 1,
-      delay: 0.36,
+      x: { duration: 1.5, ease: EASE_IN_OUT, delay: 0.1 },
+      opacity: { duration: 1.5, times: [0, 0.1, 0.85, 1], delay: 0.1 },
+    },
+  },
+  close: {
+    x: ["540%", "-140%"],
+    opacity: [0, 1, 1, 0],
+    skewX: -12,
+    transition: {
+      x: { duration: 1.05, ease: EASE_IN_OUT },
+      opacity: { duration: 1.05, times: [0, 0.12, 0.85, 1] },
     },
   },
 };
 
-const shadeOuterVariants: Variants = {
-  closed: { opacity: 1, transition: { duration: 0.18, delay: 0.16 } },
-  open: {
+/* Big ghost question-number that rises into place behind the open answer */
+const ghostNumberVariants: Variants = {
+  collapsed: {
     opacity: 0,
-    transition: { duration: 0.5, delay: 0.12, ease: "easeOut" },
+    y: 70,
+    scale: 1.15,
+    transition: { duration: 0.16, ease: EASE_IN_OUT },
   },
-};
-
-const shadeInnerVariants: Variants = {
-  closed: { opacity: 1, transition: { duration: 0.16 } },
-  open: {
-    opacity: 0,
-    transition: { duration: 0.5, delay: 0.42, ease: "easeOut" },
-  },
-};
-
-const floorShadowVariants: Variants = {
-  closed: { opacity: 1, transition: { duration: 0.18, delay: 0.1 } },
-  open: {
-    opacity: 0,
-    transition: { duration: 0.6, delay: 0.18, ease: "easeOut" },
-  },
-};
-
-const creaseFlashVariants: Variants = {
-  closed: { opacity: 0, transition: { duration: 0.12 } },
-  open: {
-    opacity: [0, 1, 0],
-    transition: { duration: 0.5, delay: 0.38, times: [0, 0.25, 1] },
-  },
-};
-
-const paraTopVariants: Variants = {
-  closed: {},
-  open: {
-    transition: { delayChildren: 0.16, staggerChildren: 0.007 },
-  },
-};
-
-const paraBottomVariants: Variants = {
-  closed: {},
-  open: {
-    transition: { delayChildren: 0.5, staggerChildren: 0.007 },
-  },
-};
-
-const wordVariants: Variants = {
-  closed: { opacity: 0, transition: { duration: 0.1 } },
-  open: {
+  expanded: {
     opacity: 1,
-    transition: { duration: 0.22, ease: "easeOut" },
-  },
-};
-
-const copyRowVariants: Variants = {
-  closed: { opacity: 0, transition: { duration: 0.1 } },
-  open: {
-    opacity: 1,
-    transition: { duration: 0.3, delay: 0.8, ease: [0.22, 1, 0.36, 1] },
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.9, ease: EASE_OUT_EXPO },
   },
 };
 
@@ -139,29 +156,10 @@ function Highlight({ text, query }: { text: string; query: string }) {
   );
 }
 
-function AnswerWords({ words, query }: { words: string[]; query: string }) {
-  return (
-    <>
-      {words.map((word, wi) => (
-        <motion.span
-          key={wi}
-          variants={wordVariants}
-          className="inline-block will-change-[opacity,transform]"
-        >
-          <Highlight text={word} query={query} />
-          &nbsp;
-        </motion.span>
-      ))}
-    </>
-  );
-}
-
 export default function FaqList({ items, categories }: FaqListProps) {
   const [category, setCategory] = useState<string>("All");
   const [query, setQuery] = useState("");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const [copied, setCopied] = useState<string | null>(null);
-  const copiedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = { All: items.length };
@@ -195,23 +193,8 @@ export default function FaqList({ items, categories }: FaqListProps) {
     });
   }, [items]);
 
-  useEffect(() => () => clearTimeout(copiedTimer.current), []);
-
-  const copyLink = async (question: string) => {
-    const slug = slugify(question);
-    try {
-      await navigator.clipboard.writeText(
-        `${window.location.origin}/faq#${slug}`
-      );
-      setCopied(slug);
-      clearTimeout(copiedTimer.current);
-      copiedTimer.current = setTimeout(() => setCopied(null), 1600);
-    } catch {
-      // clipboard unavailable (insecure context) — no feedback shown
-    }
-  };
-
   return (
+    <MotionConfig reducedMotion="user">
     <div>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div
@@ -280,8 +263,6 @@ export default function FaqList({ items, categories }: FaqListProps) {
           {filtered.map((item, i) => {
             const open = openIndex === i;
             const slug = slugify(item.question);
-            const words = item.answer.split(" ");
-            const half = Math.ceil(words.length / 2);
             return (
               <motion.div
                 key={item.question}
@@ -291,13 +272,25 @@ export default function FaqList({ items, categories }: FaqListProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12, transition: { duration: 0.25 } }}
                 viewport={{ once: true, margin: "-60px" }}
-                animate={open ? { scale: [1, 1.018, 0.997, 1] } : { scale: 1 }}
+                animate={
+                  open
+                    ? {
+                        y: -2,
+                        boxShadow:
+                          "0 18px 50px -18px rgba(255,77,31,0.30), 0 4px 16px -8px rgba(0,0,0,0.5)",
+                      }
+                    : {
+                        y: 0,
+                        boxShadow: "0 0 0 0 rgba(255,77,31,0)",
+                      }
+                }
                 transition={{
                   duration: 0.55,
-                  ease: [0.22, 1, 0.36, 1],
+                  ease: EASE_OUT_EXPO,
                   delay: Math.min(i, 8) * 0.045,
-                  layout: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                  scale: { duration: 0.7, times: [0, 0.12, 0.5, 1], ease: "easeOut" },
+                  layout: { duration: 0.45, ease: EASE_OUT_EXPO },
+                  y: springGentle,
+                  boxShadow: { duration: 0.6, ease: EASE_OUT_EXPO },
                 }}
                 onMouseMove={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
@@ -323,13 +316,26 @@ export default function FaqList({ items, categories }: FaqListProps) {
                   }}
                   aria-hidden="true"
                 />
+                {/* Light-sweep streak — z-20 rides over the whole card face */}
+                <motion.span
+                  variants={shineVariants}
+                  initial={false}
+                  animate={open ? "open" : "close"}
+                  className="pointer-events-none absolute inset-y-[-25%] left-0 z-20 w-1/4 will-change-transform"
+                  style={{
+                    background:
+                      "linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.04) 38%, rgba(255,255,255,0.20) 50%, rgba(255,77,31,0.10) 62%, transparent 100%)",
+                    filter: "blur(6px)",
+                  }}
+                  aria-hidden="true"
+                />
                 <AnimatePresence>
                   {open && (
                     <motion.span
-                      initial={{ opacity: 0, scale: 0.6 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.6 }}
-                      transition={{ type: "spring", stiffness: 120, damping: 18 }}
+                      variants={glowVariants}
+                      initial="collapsed"
+                      animate="expanded"
+                      exit="collapsed"
                       className="pointer-events-none absolute -right-12 -top-14 h-36 w-36 rounded-full bg-accent/15 blur-3xl"
                       aria-hidden="true"
                     />
@@ -337,6 +343,8 @@ export default function FaqList({ items, categories }: FaqListProps) {
                 </AnimatePresence>
                 <motion.button
                   type="button"
+                  id={`faq-button-${slug}`}
+                  aria-controls={`faq-panel-${slug}`}
                   onClick={() => setOpenIndex(open ? null : i)}
                   aria-expanded={open}
                   whileTap={{ scale: 0.98 }}
@@ -359,138 +367,81 @@ export default function FaqList({ items, categories }: FaqListProps) {
                   </span>
                 </span>
                 <motion.span
-                  animate={{ rotate: open ? 90 : 0, scale: open ? 1.1 : 1 }}
-                  transition={{ type: "spring", stiffness: 380, damping: 22, mass: 0.7 }}
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
+                  animate={{ scale: open ? 1.08 : 1 }}
+                  whileHover={{ scale: open ? 1.08 : 1.12 }}
+                  transition={iconSpring}
+                  className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
                     open
                       ? "border-accent bg-accent text-[#0e0e0e]"
                       : "border-ink/15 text-ink"
                   }`}
                   aria-hidden="true"
                 >
-                  {open ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                  <motion.span
+                    className="absolute inset-0 flex items-center justify-center"
+                    animate={{
+                      rotate: open ? 225 : 0,
+                      opacity: open ? 0 : 1,
+                      scale: open ? 0.5 : 1,
+                    }}
+                    transition={iconSpring}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </motion.span>
+                  <motion.span
+                    className="absolute inset-0 flex items-center justify-center"
+                    animate={{
+                      rotate: open ? 0 : -225,
+                      opacity: open ? 1 : 0,
+                      scale: open ? 1 : 0.5,
+                    }}
+                    transition={iconSpring}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </motion.span>
                 </motion.span>
                 </motion.button>
 
                 <AnimatePresence initial={false}>
                   {open && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{
-                        height: "auto",
-                        opacity: 1,
-                        transition: {
-                          height: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-                          opacity: { duration: 0.1 },
-                        },
-                      }}
-                      exit={{
-                        height: 0,
-                        opacity: 0,
-                        transition: {
-                          height: {
-                            duration: 0.26,
-                            delay: 0.38,
-                            ease: [0.65, 0, 0.35, 1],
-                          },
-                          opacity: { duration: 0.2, delay: 0.44 },
-                        },
-                      }}
-                      className="relative z-10"
+                      variants={answerVariants}
+                      initial="collapsed"
+                      animate="expanded"
+                      exit="collapsed"
+                      id={`faq-panel-${slug}`}
+                      role="region"
+                      aria-labelledby={`faq-button-${slug}`}
+                      className="relative z-10 overflow-hidden"
                     >
-                      <div
-                        className="relative overflow-hidden"
-                        style={{ perspective: 950 }}
+                      {/* Ghost number watermark — huge, gradient-washed, rising in behind the answer */}
+                      <motion.span
+                        variants={ghostNumberVariants}
+                        style={{
+                          transformOrigin: "bottom right",
+                          backgroundImage:
+                            "linear-gradient(to bottom, rgba(255,77,31,0.22), rgba(255,77,31,0.06) 55%, rgba(255,77,31,0))",
+                          WebkitBackgroundClip: "text",
+                          backgroundClip: "text",
+                        }}
+                        className="display pointer-events-none absolute -bottom-7 right-1 select-none text-[8rem] font-black leading-none tracking-tighter text-transparent md:-bottom-9 md:right-5 md:text-[12rem]"
+                        aria-hidden="true"
                       >
-                        <motion.div
-                          variants={floorShadowVariants}
-                          initial="closed"
-                          animate="open"
-                          exit="closed"
-                          className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-black/25 to-transparent"
-                          aria-hidden="true"
-                        />
-                        <motion.div
-                          variants={flapOuterVariants}
-                          initial="closed"
-                          animate="open"
-                          exit="closed"
-                          style={{
-                            transformOrigin: "top center",
-                            transformStyle: "preserve-3d",
-                          }}
-                          className="relative z-[5]"
-                        >
-                          <motion.span
-                            variants={shadeOuterVariants}
-                            className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-black/70 via-black/35 to-black/10"
-                            aria-hidden="true"
-                          />
-                          <motion.p
-                            variants={paraTopVariants}
-                            className="max-w-3xl px-5 pl-[3.25rem] pt-4 text-sm leading-relaxed text-muted md:px-6 md:pl-[3.5rem] md:text-base"
-                          >
-                            <AnswerWords words={words.slice(0, half)} query={query} />
-                          </motion.p>
-                          <div
-                            className="mx-5 mt-1.5 h-px bg-gradient-to-r from-transparent via-white/[0.07] to-transparent md:mx-6"
-                            aria-hidden="true"
-                          />
-                          <motion.div
-                            variants={creaseFlashVariants}
-                            initial="closed"
-                            animate="open"
-                            exit="closed"
-                            className="pointer-events-none mx-5 -mt-px h-px bg-gradient-to-r from-transparent via-accent to-transparent shadow-[0_0_14px_3px_rgba(255,77,31,0.55)] md:mx-6"
-                            aria-hidden="true"
-                          />
-                          <motion.div
-                            variants={flapInnerVariants}
-                            initial="closed"
-                            animate="open"
-                            exit="closed"
-                            style={{
-                              transformOrigin: "top center",
-                              transformStyle: "preserve-3d",
-                            }}
-                            className="relative"
-                          >
-                            <motion.span
-                              variants={shadeInnerVariants}
-                              className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-black/80 via-black/40 to-black/10"
-                              aria-hidden="true"
-                            />
-                            <motion.p
-                              variants={paraBottomVariants}
-                              className="max-w-3xl px-5 pb-2 pl-[3.25rem] pt-2.5 text-sm leading-relaxed text-muted md:px-6 md:pl-[3.5rem] md:text-base"
-                            >
-                              <AnswerWords words={words.slice(half)} query={query} />
-                            </motion.p>
-                            <motion.div
-                              variants={copyRowVariants}
-                              className="px-5 pb-5 pl-[3.25rem] md:px-6 md:pl-[3.5rem]"
-                            >
-                              <button
-                                type="button"
-                                onClick={() => copyLink(item.question)}
-                                className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-muted transition-colors hover:text-accent"
-                              >
-                                {copied === slug ? (
-                                  <>
-                                    <Check className="h-3 w-3 text-accent" aria-hidden="true" />
-                                    Link copied
-                                  </>
-                                ) : (
-                                  <>
-                                    <Link2 className="h-3 w-3" aria-hidden="true" />
-                                    Copy link
-                                  </>
-                                )}
-                              </button>
-                            </motion.div>
-                          </motion.div>
-                        </motion.div>
-                      </div>
+                        {String(i + 1).padStart(2, "0")}
+                      </motion.span>
+                      {/* Accent rail — draws downward in step with the reveal */}
+                      <motion.span
+                        variants={railVariants}
+                        style={{ transformOrigin: "top" }}
+                        className="pointer-events-none absolute bottom-7 left-6 top-1 w-[2.5px] rounded-full bg-gradient-to-b from-accent via-accent/60 to-accent/5 md:left-7"
+                        aria-hidden="true"
+                      />
+                      <motion.p
+                        variants={revealVariants}
+                        className="max-w-3xl px-5 pb-6 pl-[3.25rem] pt-4 text-sm leading-relaxed text-muted md:px-6 md:pl-[3.5rem] md:text-base"
+                      >
+                        <Highlight text={item.answer} query={query} />
+                      </motion.p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -522,5 +473,6 @@ export default function FaqList({ items, categories }: FaqListProps) {
         )}
       </motion.div>
     </div>
+    </MotionConfig>
   );
 }
