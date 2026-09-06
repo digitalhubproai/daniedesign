@@ -40,6 +40,7 @@ const faqItems: FaqItem[] = [
   {
     category: "Services",
     question: "What services do you offer?",
+    popular: true,
     answer:
       "Four pillars. Branding covers strategy, identity, creative direction and graphic design. UI/UX Design covers research, wireframing, prototyping, usability testing and mobile app design. Website Development covers the build itself. And Digital Marketing covers SEO, strategy, market research and social media.",
   },
@@ -64,18 +65,21 @@ const faqItems: FaqItem[] = [
   {
     category: "Process",
     question: "How long does a typical project take?",
+    popular: true,
     answer:
       "It depends on scope. A focused brand identity or landing page runs weeks, while full products with research, design systems and development take longer. When you send an inquiry we'll come back with an honest timeline for what you're actually trying to build.",
   },
   {
     category: "Process",
     question: "How does pricing work?",
+    popular: true,
     answer:
       "Projects are quoted per scope after we understand your goals, and there are no surprise fees. Our inquiry form offers typical budget brackets (under $5k, $5k–$15k, $15k–$50k, $50k+) as a starting point. Whatever your range, tell us and we'll be straight about what's achievable.",
   },
   {
     category: "Working Together",
     question: "Do you offer ongoing support after launch?",
+    popular: true,
     answer:
       "Yes. Many clients keep us on for digital marketing, iteration and growth work after a site or product launches. We see launches as milestones, not endings, and our partnerships usually extend well beyond the deliverable.",
   },
@@ -94,8 +98,22 @@ const faqItems: FaqItem[] = [
 ];
 
 export default function FaqPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PageHero
         eyebrow="FAQ & Answers"
         title="Questions, answered."
