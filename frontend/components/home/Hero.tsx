@@ -175,7 +175,7 @@ export default function Hero() {
         <video
           ref={videoRef}
           data-hero-video
-          src="https://cdn.pixabay.com/video/2020-06-18/42521-431738825_medium.mp4"
+          src="https://cdn.pixabay.com/video/2020-06-18/42521-431738825_large.mp4"
           autoPlay
           muted
           loop
