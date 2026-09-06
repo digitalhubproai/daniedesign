@@ -2,8 +2,8 @@
 // language as /agency: PageHero with meta stats, TiltCard summary cards,
 // then the full policy as numbered cards with a sticky section index. Policy
 // copy lives in the local `sections` array and mirrors what the site actually
-// does — contact form + newsletter submissions to the backend, no trackers or
-// cookies. Linked from the footer bottom bar.
+// does — contact form + newsletter submissions to the backend, plus Google
+// Analytics for traffic stats. Linked from the footer bottom bar.
 import type { Metadata } from "next";
 import { ShieldCheck, Lock, EyeOff } from "lucide-react";
 import PageHero from "@/components/shared/PageHero";
@@ -15,7 +15,7 @@ import { contact } from "@/data/contact";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How Danie Design collects, uses and protects your personal information — no trackers, no sold data, no spam.",
+    "How Danie Design collects, uses and protects your personal information — what we gather, why, and your rights.",
 };
 
 type PolicySection = {
@@ -59,6 +59,7 @@ const sections: PolicySection[] = [
     bullets: [
       "Contact form — your name, email address, company name (optional), the service you're interested in and your message.",
       "Newsletter — the email address you submit when subscribing to updates.",
+      "Analytics — Google Analytics collects standard visit information (pages viewed, referring site, approximate location, device and browser) so we understand how the site is used.",
       "Admin area — a login token stored in your browser's local storage so authorised team members stay signed in. This applies to our staff only, not to visitors.",
     ],
   },
@@ -74,7 +75,7 @@ const sections: PolicySection[] = [
   {
     heading: "Cookies and Tracking",
     paragraphs: [
-      "This website does not set advertising or tracking cookies and does not use third-party analytics trackers on public pages. We will always ask for your consent before introducing any new tracking technology.",
+      "We use Google Analytics, which sets a first-party analytics cookie to count page views and sessions. It is used for measurement only — not for advertising or cross-site tracking. Beyond that, this website does not set advertising or tracking cookies. We will always update this policy before introducing any new tracking technology.",
     ],
   },
   {
@@ -126,9 +127,9 @@ export default function PrivacyPolicyPage() {
       <PageHero
         eyebrow="Legal — Privacy Policy"
         title="Your data stays your data."
-        intro="The short version: we collect only what you send us through our contact or newsletter forms, we never sell it, and there are no trackers or advertising cookies on this site. The full details are below."
+        intro="The short version: we collect only what you send us through our contact or newsletter forms, plus anonymous traffic stats via Google Analytics. We never sell your data, and there are no advertising trackers on this site. The full details are below."
         meta={[
-          { label: "Trackers", value: "Zero" },
+          { label: "Ad Trackers", value: "None" },
           { label: "Data Selling", value: "Never" },
           { label: "Your Rights", value: "Respected" },
         ]}

@@ -4,9 +4,13 @@
 // Design" template), and renders every route inside SiteShell (header, footer,
 // cursor and other chrome). Server component — no data fetching here.
 import type { Metadata } from "next";
+import Script from "next/script";
 import { IBM_Plex_Mono, Roboto, Sora } from "next/font/google";
 import "./globals.css";
 import SiteShell from "@/components/layout/SiteShell";
+
+/** Google Analytics 4 measurement ID. */
+const GA_ID = "G-NLQT6JTW7G";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -53,6 +57,25 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-screen antialiased">
         <SiteShell>{children}</SiteShell>
+        {/* Google Analytics (gtag.js) — loaded after hydration, production only,
+            so local/dev traffic never skews the live property's stats. */}
+        {process.env.NODE_ENV === "production" && (
+          <>
+            <Script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );

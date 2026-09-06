@@ -83,7 +83,7 @@ const faqItems: FaqItem[] = [
     category: "Working Together",
     question: "What happens to my data when I contact you?",
     answer:
-      "Your inquiry details go straight to our team and are stored only so we can respond and follow up. We don't sell data, we don't run ad trackers on this site, and you can ask us to delete your information anytime. The full details are in our Privacy Policy.",
+      "Your inquiry details go straight to our team and are stored only so we can respond and follow up. We don't sell data, the site uses Google Analytics just to measure traffic (no ad trackers), and you can ask us to delete your information anytime. The full details are in our Privacy Policy.",
   },
   {
     category: "Working Together",

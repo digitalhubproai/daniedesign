@@ -9,17 +9,21 @@
 /** Contact details, newsletter/legal notes and social profile links. */
 export const contact = {
   email: "daniedesignz@gmail.com",
+  /** Studio location shown in the contact page info boxes. */
+  location: "London, United Kingdom",
+  locationNote: "Working worldwide, remote-first",
   newsletterNote:
     "Monthly updates on our work, design thinking and brand stories. No spam, unsubscribe anytime.",
   privacyNote:
     "By subscribing you agree to our privacy policy. We never share your data.",
   socials: [
-    { label: "Facebook", href: "https://facebook.com" },
-    { label: "X", href: "https://x.com" },
-    { label: "Dribbble", href: "https://dribbble.com" },
-    { label: "Instagram", href: "https://instagram.com" },
-    { label: "Pinterest", href: "https://pinterest.com" },
-    { label: "YouTube", href: "https://youtube.com" },
+    { label: "Facebook", href: "https://www.facebook.com/danie.sh.528" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/danie-d-34314737/" },
+    { label: "X", href: "https://x.com/daniedesignz" },
+    { label: "Dribbble", href: "https://dribbble.com/daniedesign" },
+    { label: "Behance", href: "https://www.behance.net/daniedesigns" },
+    { label: "Instagram", href: "https://www.instagram.com/danie.designz/" },
+    { label: "Pinterest", href: "https://uk.pinterest.com/daniedesignz/" },
   ] as { label: string; href: string }[],
 };
 

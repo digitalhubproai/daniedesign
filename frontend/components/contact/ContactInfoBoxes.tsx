@@ -49,10 +49,10 @@ export default function ContactInfoBoxes() {
               The studio
             </p>
             <p className="mt-1.5 text-base font-semibold text-ink">
-              Karachi, Pakistan
+              {contact.location}
             </p>
             <p className="mt-1 text-xs text-muted">
-              Working worldwide, remote-first
+              {contact.locationNote}
             </p>
           </div>
           <span
