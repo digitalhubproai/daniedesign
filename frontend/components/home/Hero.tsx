@@ -171,16 +171,19 @@ export default function Hero() {
       ref={sectionRef}
       className="relative flex min-h-screen flex-col overflow-hidden"
     >
-      <div className="absolute inset-0" aria-hidden="true">
+      <div className="absolute inset-0 bg-[#0b0d13]" aria-hidden="true">
         <video
           ref={videoRef}
           data-hero-video
-          src="https://cdn.pixabay.com/video/2020-06-18/42521-431738825_large.mp4"
+          src="/images/0_Code_Programming_1280x720.mp4"
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
+          onLoadedMetadata={(e) => {
+            e.currentTarget.playbackRate = 0.72;
+          }}
           className="h-full w-full scale-125 object-cover opacity-60 transition-opacity duration-700 will-change-transform"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/60 to-paper/80" />
