@@ -27,9 +27,16 @@ export default function CustomCursor() {
 
     let isHoveringInteractive = false;
     let isHoveringBadge = false;
+    // Guard so the "wake up" opacity tween fires only on the hidden→visible
+    // transition. Without this, every single mousemove event created a new
+    // GSAP tween (thousands/second), which tanked scroll performance.
+    let visible = false;
 
     const onMove = (e: MouseEvent) => {
-      gsap.to([dot, ring], { opacity: 1, duration: 0.2, overwrite: "auto" });
+      if (!visible) {
+        visible = true;
+        gsap.to([dot, ring], { opacity: 1, duration: 0.2, overwrite: "auto" });
+      }
       xTo(e.clientX);
       yTo(e.clientY);
       rxTo(e.clientX);
@@ -130,10 +137,12 @@ export default function CustomCursor() {
     };
 
     const onLeave = () => {
+      visible = false;
       gsap.to([dot, ring], { opacity: 0, duration: 0.2 });
     };
 
     const onEnter = () => {
+      visible = true;
       gsap.to([dot, ring], { opacity: 1, duration: 0.2 });
     };
 
@@ -160,7 +169,7 @@ export default function CustomCursor() {
       {/* Sleek Outer Floating Follower */}
       <div
         ref={ringRef}
-        className="absolute left-0 top-0 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-ink/25 opacity-0 backdrop-blur-[0.5px] transition-[border-color,background-color] duration-200"
+        className="absolute left-0 top-0 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-ink/25 opacity-0 transition-[border-color,background-color] duration-200"
       >
         {label && (
           <span

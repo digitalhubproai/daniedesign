@@ -32,7 +32,7 @@ export default function Hero() {
       const hint = section.querySelector("[data-hero-hint]");
       const heading = section.querySelector("[data-hero-heading]");
       const marker = section.querySelector("[data-hero-marker]");
-      const markerGlow = section.querySelector("[data-hero-marker-glow]");
+      const markerGlow = section.querySelectorAll("[data-hero-marker-glow]");
       const markerTip = section.querySelector("[data-hero-marker-tip]");
       const markerPass2 = section.querySelector("[data-hero-marker-pass2]");
       const shimmer = section.querySelector("[data-hero-marker-shimmer]");
@@ -76,12 +76,13 @@ export default function Hero() {
         // ── Marker flourish on "Growing Brands" (label: draw) ──
         // 1. Main felt-tip stroke flicks in left→right (expo = fast tip,
         //    decelerating end), with a glowing dot riding the drawing tip
-        //    (MotionPath, perfectly synced) and a blurred echo trailing it.
+        //    (MotionPath, perfectly synced) and a soft glow echo trailing it.
         // 2. A second, looser pass goes back over the word like a real hand.
         // 3. On arrival: ring burst + ink flecks pop, letters of the word
         //    lift one by one, and the tip winks out.
-        // 4. Afterwards: the glow breathes and a light dash sweeps the
-        //    stroke every few seconds (loop timelines below).
+        // 4. Afterwards: a light dash sweeps the stroke every few seconds
+        //    (loop timeline below). No always-on glow animation — it cost
+        //    a repaint every frame and caused scroll lag.
         // All .from()/.fromTo() tweens: the reduced-motion early-return
         // above leaves everything in its fully-drawn natural state.
         .addLabel("draw", "-=0.5")
@@ -157,19 +158,10 @@ export default function Hero() {
         .fromTo(stats, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.3")
         .fromTo(hint, { opacity: 0 }, { opacity: 1, duration: 0.6 }, "-=0.4");
 
-      // Afterglow: the blurred echo breathes softly, so the marker line
-      // feels like lit neon rather than static paint. (Skipped for
-      // reduced motion — that branch returned above.)
-      gsap.to(markerGlow, {
-        opacity: 0.55,
-        duration: 1.7,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-        delay: 1.4,
-      });
       // Perpetual light sweep: a short bright dash rides along the finished
-      // stroke every few seconds, like light catching fresh ink.
+      // stroke every few seconds, like light catching fresh ink. Kept as the
+      // only looping marker animation — the previous always-on glow "breath"
+      // meant continuous repaint and was dropped for performance.
       const sweep = gsap.timeline({ repeat: -1, repeatDelay: 5.5, delay: 3.4 });
       sweep
         .fromTo(
@@ -214,7 +206,7 @@ export default function Hero() {
         <video
           ref={videoRef}
           data-hero-video
-          src="https://cdn.pixabay.com/video/2020/06/18/42521-431738825_large.mp4"
+          src="https://cdn.pixabay.com/video/2020/06/18/42521-431738825_medium.mp4"
           autoPlay
           muted
           loop
@@ -266,14 +258,14 @@ export default function Hero() {
             <span data-hero-line className="block text-ink/75 will-change-transform">
               for{" "}
               <span className="relative inline-block whitespace-nowrap">
-                <span className="inline-block will-change-transform">
+                <span className="inline-block">
                   {"Growing Brands".split("").map((ch, i) =>
                     ch === " " ? (
                       <span key={i} className="inline-block">
                         {" "}
                       </span>
                     ) : (
-                      <span key={i} data-hero-marker-char className="inline-block will-change-transform">
+                      <span key={i} data-hero-marker-char className="inline-block">
                         {ch}
                       </span>
                     )
@@ -299,15 +291,36 @@ export default function Hero() {
                       <stop offset="1" stopColor="#ffb08a" />
                     </linearGradient>
                   </defs>
+                  {/* Soft glow faked with layered wide translucent strokes
+                      (stepped opacity falloff). A real blur() filter here
+                      forced per-frame re-rasterisation and caused site-wide
+                      scroll lag — this reads nearly the same for free. */}
                   <path
                     data-hero-marker-glow
                     d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
                     stroke="var(--color-accent)"
-                    strokeWidth="7"
+                    strokeWidth="13"
                     strokeLinecap="round"
                     strokeDasharray="240"
-                    opacity="0.35"
-                    style={{ filter: "blur(4px)" }}
+                    opacity="0.07"
+                  />
+                  <path
+                    data-hero-marker-glow
+                    d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
+                    stroke="var(--color-accent)"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray="240"
+                    opacity="0.14"
+                  />
+                  <path
+                    data-hero-marker-glow
+                    d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
+                    stroke="var(--color-accent)"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    strokeDasharray="240"
+                    opacity="0.24"
                   />
                   {/* Second, slightly offset pass — the marker going back
                       over the word like a real hand would. */}
