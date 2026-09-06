@@ -3,16 +3,18 @@
 /**
  * Central GSAP setup for the frontend.
  *
- * Registers the ScrollTrigger plugin once and re-exports both `gsap` and
- * `ScrollTrigger`, alongside small SSR-safe media query helpers that
- * animation code uses to skip or simplify motion for visitors who prefer
- * reduced motion and for touch-only (coarse pointer) devices.
+ * Registers the ScrollTrigger and MotionPathPlugin plugins once and
+ * re-exports both `gsap` and `ScrollTrigger`, alongside small SSR-safe media
+ * query helpers that animation code uses to skip or simplify motion for
+ * visitors who prefer reduced motion and for touch-only (coarse pointer)
+ * devices.
  */
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 /**
  * Pre-configured animation exports. Import gsap/ScrollTrigger from here

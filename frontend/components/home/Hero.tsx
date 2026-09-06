@@ -31,6 +31,15 @@ export default function Hero() {
       const stats = section.querySelector("[data-hero-stats]");
       const hint = section.querySelector("[data-hero-hint]");
       const heading = section.querySelector("[data-hero-heading]");
+      const marker = section.querySelector("[data-hero-marker]");
+      const markerGlow = section.querySelector("[data-hero-marker-glow]");
+      const markerTip = section.querySelector("[data-hero-marker-tip]");
+      const markerPass2 = section.querySelector("[data-hero-marker-pass2]");
+      const shimmer = section.querySelector("[data-hero-marker-shimmer]");
+      const markerRing = section.querySelector("[data-hero-marker-ring]");
+      const markerChars = section.querySelectorAll("[data-hero-marker-char]");
+      const splat = section.querySelector("[data-hero-marker-splat]");
+      const splatSm = section.querySelector("[data-hero-marker-splat-sm]");
       const video = section.querySelector("[data-hero-video]");
       const curtainTop = section.querySelector("[data-hero-curtain-top]");
       const curtainBottom = section.querySelector("[data-hero-curtain-bottom]");
@@ -64,10 +73,113 @@ export default function Hero() {
           { yPercent: 0, duration: 1, stagger: 0.1 },
           "-=0.5"
         )
+        // ── Marker flourish on "Growing Brands" (label: draw) ──
+        // 1. Main felt-tip stroke flicks in left→right (expo = fast tip,
+        //    decelerating end), with a glowing dot riding the drawing tip
+        //    (MotionPath, perfectly synced) and a blurred echo trailing it.
+        // 2. A second, looser pass goes back over the word like a real hand.
+        // 3. On arrival: ring burst + ink flecks pop, letters of the word
+        //    lift one by one, and the tip winks out.
+        // 4. Afterwards: the glow breathes and a light dash sweeps the
+        //    stroke every few seconds (loop timelines below).
+        // All .from()/.fromTo() tweens: the reduced-motion early-return
+        // above leaves everything in its fully-drawn natural state.
+        .addLabel("draw", "-=0.5")
+        .from(
+          marker,
+          { strokeDashoffset: 240, duration: 0.7, ease: "expo.out" },
+          "draw"
+        )
+        .fromTo(
+          markerTip,
+          {
+            autoAlpha: 1,
+            motionPath: {
+              path: "#hero-marker-path",
+              align: "#hero-marker-path",
+              alignOrigin: [0.5, 0.5],
+              start: 0,
+              end: 0,
+            },
+          },
+          {
+            motionPath: {
+              path: "#hero-marker-path",
+              align: "#hero-marker-path",
+              alignOrigin: [0.5, 0.5],
+              start: 0,
+              end: 1,
+            },
+            duration: 0.7,
+            ease: "expo.out",
+          },
+          "draw"
+        )
+        .to(
+          markerTip,
+          { autoAlpha: 0, scale: 1.8, duration: 0.28, ease: "power1.in" },
+          "draw+=0.46"
+        )
+        .from(
+          markerGlow,
+          { strokeDashoffset: 240, duration: 0.9, ease: "expo.out" },
+          "draw+=0.08"
+        )
+        // Second, looser pass of the marker right after the first lands.
+        .from(
+          markerPass2,
+          { strokeDashoffset: 240, duration: 0.5, ease: "expo.out" },
+          "draw+=0.72"
+        )
+        // Letters of the underlined word lift one by one — the text
+        // "reacting" to the marker passing under it.
+        .from(
+          markerChars,
+          { yPercent: 16, duration: 0.45, ease: "back.out(2.6)", stagger: 0.022 },
+          "draw+=0.5"
+        )
+        // Ring burst + flecks pop where the tip lands, then drift away.
+        .fromTo(
+          markerRing,
+          { scale: 0, opacity: 0.9 },
+          { scale: 3, opacity: 0, duration: 0.7, ease: "power2.out" },
+          "draw+=0.6"
+        )
+        .to(splat, { scale: 1, duration: 0.35, ease: "back.out(3.5)" }, "draw+=0.58")
+        .to(splatSm, { scale: 1, duration: 0.3, ease: "back.out(4)" }, "draw+=0.66")
+        .to(
+          [splat, splatSm],
+          { scale: 1.7, opacity: 0, duration: 0.45, ease: "power1.in" },
+          "draw+=0.95"
+        )
         .fromTo(copy, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, "-=0.6")
         .fromTo(ctas, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4")
         .fromTo(stats, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.3")
         .fromTo(hint, { opacity: 0 }, { opacity: 1, duration: 0.6 }, "-=0.4");
+
+      // Afterglow: the blurred echo breathes softly, so the marker line
+      // feels like lit neon rather than static paint. (Skipped for
+      // reduced motion — that branch returned above.)
+      gsap.to(markerGlow, {
+        opacity: 0.55,
+        duration: 1.7,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+        delay: 1.4,
+      });
+      // Perpetual light sweep: a short bright dash rides along the finished
+      // stroke every few seconds, like light catching fresh ink.
+      const sweep = gsap.timeline({ repeat: -1, repeatDelay: 5.5, delay: 3.4 });
+      sweep
+        .fromTo(
+          shimmer,
+          { strokeDashoffset: 240, autoAlpha: 0 },
+          { autoAlpha: 0.9, duration: 0.22 },
+          0
+        )
+        .to(shimmer, { strokeDashoffset: -20, duration: 0.85, ease: "power1.inOut" }, 0)
+        .to(shimmer, { autoAlpha: 0, duration: 0.22 }, ">-0.16");
 
       // Scroll-out effect: heading shrinks/fades away as the user scrolls past the hero
       gsap.to(heading, {
@@ -150,9 +262,110 @@ export default function Hero() {
               Web Development
             </span>
           </span>
-          <span className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
+          <span className="block overflow-hidden pb-[0.34em] -mb-[0.34em]">
             <span data-hero-line className="block text-ink/75 will-change-transform">
-              for Growing Brands
+              for{" "}
+              <span className="relative inline-block whitespace-nowrap">
+                <span className="inline-block will-change-transform">
+                  {"Growing Brands".split("").map((ch, i) =>
+                    ch === " " ? (
+                      <span key={i} className="inline-block">
+                        {" "}
+                      </span>
+                    ) : (
+                      <span key={i} data-hero-marker-char className="inline-block will-change-transform">
+                        {ch}
+                      </span>
+                    )
+                  )}
+                </span>
+                {/* Marker underline: thin flat arc sitting clear below the
+                    descenders. GSAP draws it in via stroke-dashoffset — see
+                    timeline above. The tip dot is an HTML element guided
+                    along this path with MotionPathPlugin's align feature. */}
+                <svg
+                  className="absolute -bottom-[0.14em] left-0 h-[0.13em] w-full overflow-visible"
+                  viewBox="0 0 220 8"
+                  fill="none"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    {/* Ink gradient: deep accent at the stroke start, lighter
+                        "wet" orange at the tip end. */}
+                    <linearGradient id="hero-marker-grad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0" stopColor="var(--color-accent)" />
+                      <stop offset="0.75" stopColor="#ff6a3a" />
+                      <stop offset="1" stopColor="#ffb08a" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    data-hero-marker-glow
+                    d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
+                    stroke="var(--color-accent)"
+                    strokeWidth="7"
+                    strokeLinecap="round"
+                    strokeDasharray="240"
+                    opacity="0.35"
+                    style={{ filter: "blur(4px)" }}
+                  />
+                  {/* Second, slightly offset pass — the marker going back
+                      over the word like a real hand would. */}
+                  <path
+                    data-hero-marker-pass2
+                    d="M7 6.4 C 64 3, 156 3.2, 213 6.6"
+                    stroke="var(--color-accent)"
+                    strokeWidth="2.1"
+                    strokeLinecap="round"
+                    strokeDasharray="240"
+                    opacity="0.45"
+                  />
+                  <path
+                    id="hero-marker-path"
+                    data-hero-marker
+                    d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
+                    stroke="url(#hero-marker-grad)"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                    strokeDasharray="240"
+                  />
+                  {/* Short bright dash that later sweeps along the finished
+                      stroke periodically (see the sweep timeline below). */}
+                  <path
+                    data-hero-marker-shimmer
+                    d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
+                    stroke="#ffb08a"
+                    strokeWidth="3.6"
+                    strokeLinecap="round"
+                    strokeDasharray="16 400"
+                    opacity="0"
+                  />
+                </svg>
+                {/* Glowing marker tip that rides the draw, then winks out. */}
+                <span
+                  data-hero-marker-tip
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-0 top-full h-2.5 w-2.5 rounded-full bg-accent opacity-0 shadow-[0_0_16px_5px_rgba(255,77,31,0.6)]"
+                />
+                {/* Arrival ring burst where the tip lands. */}
+                <span
+                  data-hero-marker-ring
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -bottom-[0.06em] right-[1%] h-[0.32em] w-[0.32em] rounded-full border border-accent/70 opacity-0"
+                />
+                {/* Tiny ink splatter flecks that pop where the stroke ends.
+                    scale-0 keeps them hidden until the timeline animates in. */}
+                <span
+                  data-hero-marker-splat
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -bottom-[0.04em] right-[1.5%] h-[0.15em] w-[0.15em] scale-0 rounded-full bg-accent/80"
+                />
+                <span
+                  data-hero-marker-splat-sm
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -bottom-[0.26em] right-[5%] h-[0.09em] w-[0.09em] scale-0 rounded-full bg-accent/60"
+                />
+              </span>
             </span>
           </span>
         </h1>
