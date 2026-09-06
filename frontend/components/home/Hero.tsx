@@ -8,22 +8,16 @@ import { heroStats } from "@/data/stats";
 import Counter from "@/components/animations/Counter";
 import Button from "@/components/shared/Button";
 
-/**
- * Homepage hero: full-screen video backdrop with curtain reveal,
- * staggered headline intro, CTA buttons, and animated key stats.
- */
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Intro choreography + scroll parallax, driven by one GSAP context
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
     const ctx = gsap.context(() => {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      // Animated elements are selected via data-* hooks on the JSX below
       const eyebrow = section.querySelector("[data-hero-eyebrow]");
       const lines = section.querySelectorAll("[data-hero-line]");
       const copy = section.querySelector("[data-hero-copy]");
@@ -44,7 +38,6 @@ export default function Hero() {
       const curtainTop = section.querySelector("[data-hero-curtain-top]");
       const curtainBottom = section.querySelector("[data-hero-curtain-bottom]");
 
-      // Reduced motion: skip the curtain reveal — show everything, collapse curtains instantly
       if (reduce) {
         gsap.set(
           [eyebrow, copy, ctas, stats, hint, curtainTop, curtainBottom],
@@ -54,8 +47,6 @@ export default function Hero() {
         return;
       }
 
-      // Intro timeline: curtains split open, then video zoom-out,
-      // headline lines slide up in sequence, followed by copy/CTAs/stats/hint
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       tl.fromTo(curtainTop, { scaleY: 1 }, { scaleY: 0, duration: 1.1, ease: "power4.inOut" })
@@ -73,18 +64,6 @@ export default function Hero() {
           { yPercent: 0, duration: 1, stagger: 0.1 },
           "-=0.5"
         )
-        // ── Marker flourish on "Growing Brands" (label: draw) ──
-        // 1. Main felt-tip stroke flicks in left→right (expo = fast tip,
-        //    decelerating end), with a glowing dot riding the drawing tip
-        //    (MotionPath, perfectly synced) and a soft glow echo trailing it.
-        // 2. A second, looser pass goes back over the word like a real hand.
-        // 3. On arrival: ring burst + ink flecks pop, letters of the word
-        //    lift one by one, and the tip winks out.
-        // 4. Afterwards: a light dash sweeps the stroke every few seconds
-        //    (loop timeline below). No always-on glow animation — it cost
-        //    a repaint every frame and caused scroll lag.
-        // All .from()/.fromTo() tweens: the reduced-motion early-return
-        // above leaves everything in its fully-drawn natural state.
         .addLabel("draw", "-=0.5")
         .from(
           marker,
@@ -126,20 +105,16 @@ export default function Hero() {
           { strokeDashoffset: 240, duration: 0.9, ease: "expo.out" },
           "draw+=0.08"
         )
-        // Second, looser pass of the marker right after the first lands.
         .from(
           markerPass2,
           { strokeDashoffset: 240, duration: 0.5, ease: "expo.out" },
           "draw+=0.72"
         )
-        // Letters of the underlined word lift one by one — the text
-        // "reacting" to the marker passing under it.
         .from(
           markerChars,
           { yPercent: 16, duration: 0.45, ease: "back.out(2.6)", stagger: 0.022 },
           "draw+=0.5"
         )
-        // Ring burst + flecks pop where the tip lands, then drift away.
         .fromTo(
           markerRing,
           { scale: 0, opacity: 0.9 },
@@ -158,10 +133,6 @@ export default function Hero() {
         .fromTo(stats, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.3")
         .fromTo(hint, { opacity: 0 }, { opacity: 1, duration: 0.6 }, "-=0.4");
 
-      // Perpetual light sweep: a short bright dash rides along the finished
-      // stroke every few seconds, like light catching fresh ink. Kept as the
-      // only looping marker animation — the previous always-on glow "breath"
-      // meant continuous repaint and was dropped for performance.
       const sweep = gsap.timeline({ repeat: -1, repeatDelay: 5.5, delay: 3.4 });
       sweep
         .fromTo(
@@ -173,7 +144,6 @@ export default function Hero() {
         .to(shimmer, { strokeDashoffset: -20, duration: 0.85, ease: "power1.inOut" }, 0)
         .to(shimmer, { autoAlpha: 0, duration: 0.22 }, ">-0.16");
 
-      // Scroll-out effect: heading shrinks/fades away as the user scrolls past the hero
       gsap.to(heading, {
         yPercent: -45,
         scale: 0.55,
@@ -186,7 +156,6 @@ export default function Hero() {
           scrub: true,
         },
       });
-      // Parallax: background video zooms in slowly while the hero scrolls away
       gsap.to(video, {
         scale: 1.12,
         ease: "none",
@@ -206,7 +175,7 @@ export default function Hero() {
         <video
           ref={videoRef}
           data-hero-video
-          src="https://cdn.pixabay.com/video/2020/06/18/42521-431738825_medium.mp4"
+          src="https://cdn.pixabay.com/video/2020-06-18/42521-431738825_medium.mp4"
           autoPlay
           muted
           loop
@@ -214,12 +183,10 @@ export default function Hero() {
           preload="auto"
           className="h-full w-full scale-125 object-cover opacity-60 transition-opacity duration-700 will-change-transform"
         />
-        {/* Soft elegant vignette so colors show through beautifully */}
         <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/60 to-paper/80" />
         <div className="absolute inset-0 bg-radial-gradient from-transparent via-paper/30 to-paper/80" />
       </div>
 
-      {/* Full-height curtain panels; scaleY animates 1 → 0 on intro (see timeline above) */}
       <div
         data-hero-curtain-top
         className="absolute inset-x-0 top-0 z-20 h-1/2 origin-top bg-[#0e0e0e]"
@@ -262,7 +229,7 @@ export default function Hero() {
                   {"Growing Brands".split("").map((ch, i) =>
                     ch === " " ? (
                       <span key={i} className="inline-block">
-                        {" "}
+                        {" "}
                       </span>
                     ) : (
                       <span key={i} data-hero-marker-char className="inline-block">
@@ -271,10 +238,6 @@ export default function Hero() {
                     )
                   )}
                 </span>
-                {/* Marker underline: thin flat arc sitting clear below the
-                    descenders. GSAP draws it in via stroke-dashoffset — see
-                    timeline above. The tip dot is an HTML element guided
-                    along this path with MotionPathPlugin's align feature. */}
                 <svg
                   className="absolute -bottom-[0.14em] left-0 h-[0.13em] w-full overflow-visible"
                   viewBox="0 0 220 8"
@@ -283,18 +246,12 @@ export default function Hero() {
                   aria-hidden="true"
                 >
                   <defs>
-                    {/* Ink gradient: deep accent at the stroke start, lighter
-                        "wet" orange at the tip end. */}
                     <linearGradient id="hero-marker-grad" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0" stopColor="var(--color-accent)" />
                       <stop offset="0.75" stopColor="#ff6a3a" />
                       <stop offset="1" stopColor="#ffb08a" />
                     </linearGradient>
                   </defs>
-                  {/* Soft glow faked with layered wide translucent strokes
-                      (stepped opacity falloff). A real blur() filter here
-                      forced per-frame re-rasterisation and caused site-wide
-                      scroll lag — this reads nearly the same for free. */}
                   <path
                     data-hero-marker-glow
                     d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
@@ -322,8 +279,6 @@ export default function Hero() {
                     strokeDasharray="240"
                     opacity="0.24"
                   />
-                  {/* Second, slightly offset pass — the marker going back
-                      over the word like a real hand would. */}
                   <path
                     data-hero-marker-pass2
                     d="M7 6.4 C 64 3, 156 3.2, 213 6.6"
@@ -342,8 +297,6 @@ export default function Hero() {
                     strokeLinecap="round"
                     strokeDasharray="240"
                   />
-                  {/* Short bright dash that later sweeps along the finished
-                      stroke periodically (see the sweep timeline below). */}
                   <path
                     data-hero-marker-shimmer
                     d="M4 5.5 C 62 1.8, 158 1.8, 216 4.8"
@@ -354,20 +307,16 @@ export default function Hero() {
                     opacity="0"
                   />
                 </svg>
-                {/* Glowing marker tip that rides the draw, then winks out. */}
                 <span
                   data-hero-marker-tip
                   aria-hidden="true"
                   className="pointer-events-none absolute left-0 top-full h-2.5 w-2.5 rounded-full bg-accent opacity-0 shadow-[0_0_16px_5px_rgba(255,77,31,0.6)]"
                 />
-                {/* Arrival ring burst where the tip lands. */}
                 <span
                   data-hero-marker-ring
                   aria-hidden="true"
                   className="pointer-events-none absolute -bottom-[0.06em] right-[1%] h-[0.32em] w-[0.32em] rounded-full border border-accent/70 opacity-0"
                 />
-                {/* Tiny ink splatter flecks that pop where the stroke ends.
-                    scale-0 keeps them hidden until the timeline animates in. */}
                 <span
                   data-hero-marker-splat
                   aria-hidden="true"

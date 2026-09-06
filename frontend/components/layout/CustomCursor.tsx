@@ -19,7 +19,6 @@ export default function CustomCursor() {
 
     document.body.classList.add("custom-cursor-active");
 
-    // Ultra-snappy dot tracking + smooth spring trailing for the outer ring
     const xTo = gsap.quickTo(dot, "x", { duration: 0.06, ease: "power2.out" });
     const yTo = gsap.quickTo(dot, "y", { duration: 0.06, ease: "power2.out" });
     const rxTo = gsap.quickTo(ring, "x", { duration: 0.25, ease: "power3.out" });
@@ -27,9 +26,6 @@ export default function CustomCursor() {
 
     let isHoveringInteractive = false;
     let isHoveringBadge = false;
-    // Guard so the "wake up" opacity tween fires only on the hidden→visible
-    // transition. Without this, every single mousemove event created a new
-    // GSAP tween (thousands/second), which tanked scroll performance.
     let visible = false;
 
     const onMove = (e: MouseEvent) => {
@@ -166,7 +162,6 @@ export default function CustomCursor() {
 
   return (
     <div className="custom-cursor pointer-events-none fixed inset-0 z-[999]" aria-hidden="true">
-      {/* Sleek Outer Floating Follower */}
       <div
         ref={ringRef}
         className="absolute left-0 top-0 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-ink/25 opacity-0 transition-[border-color,background-color] duration-200"
@@ -181,7 +176,6 @@ export default function CustomCursor() {
         )}
       </div>
 
-      {/* High-Precision Inner Accent Dot */}
       <div
         ref={dotRef}
         className="absolute -left-1 -top-1 h-2 w-2 rounded-full bg-accent opacity-0 shadow-[0_0_8px_rgba(255,77,31,0.7)]"
