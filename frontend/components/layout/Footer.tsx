@@ -267,7 +267,7 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-6">
             <Link
-              href="/contact"
+              href="/privacy-policy"
               className="text-xs text-muted underline decoration-white/20 underline-offset-4 transition-colors hover:text-accent"
             >
               Privacy Policy
