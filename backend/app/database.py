@@ -33,6 +33,10 @@ try:
     logger.info(f"Database engine initialized for Neon DB")
 except Exception as e:
     logger.error(f"Failed to initialize database engine: {e}")
+    if settings.ENVIRONMENT != "development":
+        # On serverless (Vercel) a local SQLite file is read-only anyway; fail
+        # loudly instead of masking a misconfigured DATABASE_URL with a doomed fallback
+        raise
     fallback_url = "sqlite:///./daniedesign.db"
     engine = create_engine(fallback_url, connect_args={"check_same_thread": False})
     logger.warning(f"Fallen back to local SQLite: {fallback_url}")
