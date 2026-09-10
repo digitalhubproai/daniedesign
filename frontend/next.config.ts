@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "daniedesign.com",
       },
+      // Deployed FastAPI backend (Vercel) serves DB-stored uploads from here.
+      // Narrow to the exact backend hostname (e.g. "daniedesign-backend.vercel.app") once deployed.
+      {
+        protocol: "https",
+        hostname: "*.vercel.app",
+      },
       {
         protocol: "http",
         hostname: "localhost",
