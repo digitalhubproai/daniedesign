@@ -201,6 +201,52 @@ body {
   pointer-events: none;
 }
 
+/* ── Lightbox animations ───────────────────────────────────────────────── */
+@keyframes lightbox-fade-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(24px);
+  }
+}
+
+@keyframes lightbox-image-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes lightbox-ui-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lightbox-overlay {
+  animation: lightbox-fade-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.lightbox-image {
+  animation: lightbox-image-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.lightbox-ui {
+  animation: lightbox-ui-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

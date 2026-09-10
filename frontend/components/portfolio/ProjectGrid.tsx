@@ -7,20 +7,10 @@ import { Project } from "@/data/projects";
 import ProjectCard from "./ProjectCard";
 import ProjectFilters from "./ProjectFilters";
 
-const sizePattern = [
-  "md:col-span-2 md:row-span-2",
-  "md:col-span-1 md:row-span-2",
-  "md:col-span-3 md:row-span-1",
-  "md:col-span-1 md:row-span-2",
-  "md:col-span-2 md:row-span-1",
-  "md:col-span-2 md:row-span-1",
-];
-
 export default function ProjectGrid() {
   const [active, setActive] = useState("All");
   const [projects, setProjects] = useState<Project[]>([]);
 
-  // Live list from the backend API (demo data is the fallback if unreachable).
   useEffect(() => {
     getProjects().then(setProjects).catch(() => {});
   }, []);
@@ -33,23 +23,21 @@ export default function ProjectGrid() {
 
       <motion.div
         layout
-        className="grid auto-rows-[300px] grid-cols-1 gap-5 md:grid-cols-3 md:gap-6"
+        className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
       >
         <AnimatePresence mode="popLayout">
           {filtered.map((project, i) => (
             <motion.div
               layout
               key={project.slug}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className={sizePattern[i % sizePattern.length]}
+              transition={{ duration: 0.5, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
             >
               <ProjectCard
                 project={project}
-                className="h-full"
-                imgSizes="(min-width: 1024px) 33vw, 100vw"
+                imgSizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
               />
             </motion.div>
           ))}

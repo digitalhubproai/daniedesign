@@ -1,213 +1,314 @@
-// "/work/[slug]" project case-study pages. Server components; the record is
-// fetched live from the backend API (getProjectBySlug falls back to the static
-// @/data/projects demo list when the API is unreachable).
+// "/work/[slug]" — full case-study page. Server component.
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Target, Lightbulb, PenTool, Code2, Trophy } from "lucide-react";
 import { getProject, projects } from "@/data/projects";
 import { getProjectBySlug, getProjects } from "@/lib/api";
-import ImageReveal from "@/components/animations/ImageReveal";
-import SplitText from "@/components/animations/SplitText";
-import TiltCard from "@/components/animations/TiltCard";
+import FadeUp from "@/components/animations/FadeUp";
+import ProjectHero from "@/components/portfolio/ProjectHero";
+import GalleryDeck from "@/components/portfolio/GalleryDeck";
+import ScrollProgress from "@/components/portfolio/ScrollProgress";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 export function generateStaticParams() {
-  // Pre-render the demo slugs at build time; CMS-created slugs render on demand.
   return projects.map((project) => ({ slug: project.slug }));
 }
 
-// Per-project SEO metadata derived from the project record; unknown slugs get a
-// minimal fallback title (the page itself then triggers notFound() below).
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = (await getProjectBySlug(slug)) ?? getProject(slug);
   if (!project) return { title: "Project Not Found" };
-  return {
-    title: project.title,
-    description: project.description,
-  };
+  return { title: project.title, description: project.description };
 }
 
+const NARRATIVE_STEPS = [
+  { key: "challenge", label: "The Challenge", icon: Target, color: "text-red-400" },
+  { key: "approach", label: "Our Approach", icon: Lightbulb, color: "text-amber-400" },
+  { key: "design", label: "The Design", icon: PenTool, color: "text-purple-400" },
+  { key: "development", label: "In Development", icon: Code2, color: "text-blue-400" },
+  { key: "outcome", label: "The Outcome", icon: Trophy, color: "text-emerald-400" },
+] as const;
+
 export default async function ProjectPage({ params }: Props) {
-  // params is a Promise in this Next version — await it before reading the slug.
   const { slug } = await params;
-  // Live project from the API, demo list as fallback.
   const project = (await getProjectBySlug(slug)) ?? getProject(slug);
-  // Unknown slug: render the app-level 404 (app/not-found.tsx).
   if (!project) notFound();
 
-  // Circular "next project" link — wraps back to the first project after the last.
   const allProjects = await getProjects();
-  const nextIndex = (allProjects.findIndex((p) => p.slug === slug) + 1) % allProjects.length;
-  const nextProject = allProjects[nextIndex] ?? project;
+  const activeIndex = allProjects.findIndex((p) => p.slug === slug);
+  const nextProject = allProjects[(activeIndex + 1 + allProjects.length) % allProjects.length] ?? project;
+  const prevProject = allProjects[(activeIndex - 1 + allProjects.length) % allProjects.length] ?? project;
+
+  const steps = NARRATIVE_STEPS.map((s, i) => ({
+    ...s,
+    index: i + 1,
+    body: (project[s.key] ?? "").trim(),
+  })).filter((s) => s.body.length > 0);
 
   return (
     <main>
-      <section className="px-5 pb-16 pt-32 md:px-10 md:pt-40">
-        <div className="mx-auto max-w-[1440px]">
-          <Link
-            href="/work"
-            className="mb-10 inline-flex items-center gap-2 text-sm font-semibold text-muted transition-colors hover:text-accent"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            All Work
-          </Link>
+      <ScrollProgress />
 
-          <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
-            <h1 className="display max-w-4xl text-5xl font-medium leading-[0.98] tracking-tight md:text-6xl">
-              <SplitText text={project.title} as="span" className="block" />
-            </h1>
-            <div className="flex flex-wrap gap-x-10 gap-y-4">
-              <div>
-                <p className="eyebrow">Category</p>
-                <p className="display mt-1 text-xl font-medium text-ink">{project.category}</p>
-              </div>
-              <div>
-                <p className="eyebrow">Year</p>
-                <p className="display mt-1 text-xl font-medium text-ink">{project.year}</p>
-              </div>
-              <div>
-                <p className="eyebrow">Services</p>
-                <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                  {project.services.map((service) => (
-                    <li key={service} className="text-sm font-semibold text-ink/80">
-                      {service}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+      <ProjectHero
+        image={project.image}
+        video={project.video || undefined}
+        title={project.title}
+        category={project.category}
+        year={project.year}
+        description={project.description}
+        services={project.services}
+      />
 
-          {project.video ? (
-            <div className="mt-14 overflow-hidden rounded-[1.25rem] border border-white/10 bg-black">
-              <video
-                src={project.video}
-                controls
-                playsInline
-                poster={project.image}
-                preload="metadata"
-                className="h-[42vh] w-full object-cover md:h-[68vh]"
-              />
-            </div>
-          ) : (
-            <ImageReveal
-              src={project.image}
-              alt={`${project.title} — main visual`}
-              className="mt-14 h-[42vh] w-full rounded-[1.25rem] md:h-[68vh]"
-              imgClassName="photo-duo"
-              sizes="100vw"
-              priority
-            />
-          )}
+      {/* ── Facts Strip ─────────────────────────────────────────────────── */}
+      <section className="border-y border-ink/10 bg-panel/50">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-px px-5 md:grid-cols-4 md:px-10">
+          {[
+            { label: "Discipline", value: project.category, num: "01" },
+            { label: "Year", value: project.year, num: "02" },
+            { label: "Scope", value: `${project.services.length} service${project.services.length === 1 ? "" : "s"}`, num: "03" },
+            { label: "Stack", value: project.technologies?.length ? `${project.technologies.length} technologies` : "Full-stack", num: "04" },
+          ].map((fact, i) => (
+            <FadeUp key={fact.label} delay={i * 0.06} className="group py-7 md:py-9 md:not-first:border-l md:not-first:border-ink/10 md:pl-6">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-accent/60">{fact.num}</span>
+                <p className="eyebrow">{fact.label}</p>
+              </div>
+              <p className="display mt-2 text-lg font-semibold text-ink md:text-xl">{fact.value}</p>
+            </FadeUp>
+          ))}
         </div>
       </section>
 
-      <section className="border-t border-ink/5 py-20 md:py-28">
-        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
-          <p className="eyebrow">Project Detail</p>
-          <p className="display mt-8 max-w-4xl text-2xl font-medium leading-[1.15] tracking-tight text-ink md:text-4xl">
-            {project.description}
-          </p>
+      {/* ── Full-width project image ────────────────────────────────────── */}
+      {project.image && (
+        <section className="py-12 md:py-20">
+          <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+            <FadeUp>
+              <div className="relative overflow-hidden rounded-2xl border border-ink/10">
+                <div className="relative aspect-[16/7] w-full">
+                  <Image
+                    src={project.image}
+                    alt={`${project.title} — full project view`}
+                    fill
+                    sizes="(min-width: 1024px) 80vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </FadeUp>
+          </div>
+        </section>
+      )}
 
-          {project.features && project.features.length > 0 && (
-            <div className="mt-16 border-t border-ink/5 pt-12">
-              <p className="eyebrow">Key Features</p>
-              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {project.features.map((feature, i) => (
-                  <TiltCard key={i} maxTilt={6} glowColor="rgba(255, 77, 31, 0.14)" className="h-full rounded-2xl">
-                    <div className="flex items-start gap-4 rounded-2xl border border-ink/10 bg-paper p-6 transition-colors duration-300 hover:border-accent/30">
-                      <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent/10 font-mono text-[10px] font-bold text-accent">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <p className="text-sm leading-relaxed text-ink/80">
-                        {feature}
-                      </p>
+      {/* ── Narrative ───────────────────────────────────────────────────── */}
+      {steps.length > 0 && (
+        <section className="py-20 md:py-32">
+          <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+            <FadeUp className="mb-12 md:mb-16">
+              <p className="eyebrow mb-4 flex items-center gap-3">
+                Case Study
+                <span className="h-px flex-1 bg-ink/10" />
+              </p>
+              <p className="display text-2xl font-semibold leading-tight tracking-tight text-ink md:text-3xl">
+                The story <span className="text-accent">behind</span> the work.
+              </p>
+            </FadeUp>
+
+            <div className="md:grid md:grid-cols-[16rem_1fr] md:gap-16">
+              {/* Sticky sidebar */}
+              <div className="mb-10 md:mb-0">
+                <div className="sticky top-32">
+                  <div className="rounded-2xl border border-ink/10 bg-panel/60 p-6">
+                    <p className="eyebrow mb-2">Project</p>
+                    <p className="display text-xl font-semibold leading-tight text-ink">
+                      {project.title}
+                    </p>
+                    <p className="mt-1.5 text-sm text-muted">
+                      {project.category} · {project.year}
+                    </p>
+                    <div className="my-4 h-px bg-ink/10" />
+                    <p className="eyebrow mb-2">Services</p>
+                    <div className="space-y-1.5">
+                      {project.services.map((service) => (
+                        <div key={service} className="flex items-center gap-2">
+                          <span className="h-1 w-1 rounded-full bg-accent" />
+                          <p className="text-xs text-muted">{service}</p>
+                        </div>
+                      ))}
                     </div>
-                  </TiltCard>
-                ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Steps */}
+              <div className="flex flex-col">
+                {steps.map((step, i) => {
+                  const Icon = step.icon;
+                  return (
+                    <FadeUp key={step.key}>
+                      <div className="group border-t border-ink/10 py-10 first:border-t-0 first:pt-0 md:py-14">
+                        <div className="flex items-start gap-5">
+                          <div className="relative shrink-0">
+                            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-ink/10 bg-panel transition-all duration-500 group-hover:border-accent/30 group-hover:bg-accent/10">
+                              <Icon className={`h-5 w-5 ${step.color}`} />
+                            </span>
+                            {i < steps.length - 1 && (
+                              <div className="absolute left-1/2 top-full h-10 w-px -translate-x-1/2 bg-gradient-to-b from-ink/10 to-transparent" />
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="font-mono text-[11px] font-bold tracking-[0.3em] text-accent">
+                                {String(step.index).padStart(2, "0")}
+                              </span>
+                              <p className="eyebrow">{step.label}</p>
+                            </div>
+                            <p className="display max-w-3xl text-lg font-medium leading-[1.6] tracking-tight text-ink/85 md:text-xl">
+                              {step.body}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </FadeUp>
+                  );
+                })}
               </div>
             </div>
-          )}
+          </div>
+        </section>
+      )}
 
-          {project.technologies && project.technologies.length > 0 && (
-            <div className="mt-16 border-t border-ink/5 pt-12">
-              <p className="eyebrow">Technologies Used</p>
-              <div className="mt-6 flex flex-wrap gap-2.5">
+      {/* ── Key Features ────────────────────────────────────────────────── */}
+      {project.features && project.features.length > 0 && (
+        <section className="relative border-t border-ink/10 py-20 md:py-28">
+          <div className="pointer-events-none absolute left-1/2 top-0 h-72 w-[46rem] -translate-x-1/2 rounded-full bg-accent/10 blur-[120px]" aria-hidden="true" />
+
+          <div className="relative mx-auto max-w-[1440px] px-5 md:px-10">
+            <FadeUp className="mb-10 md:mb-14">
+              <p className="eyebrow mb-4 flex items-center gap-3">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+                  <span className="font-mono text-xs font-bold text-accent">F</span>
+                </span>
+                Key Features
+                <span className="h-px flex-1 bg-ink/10" />
+              </p>
+            </FadeUp>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {project.features.map((feature, i) => (
+                <FadeUp key={i} delay={(i % 2) * 0.08} className="h-full">
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-ink/10 bg-panel p-7 transition-all duration-500 hover:border-accent/40 hover:bg-card md:p-8">
+                    <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/0 blur-2xl transition-all duration-700 group-hover:bg-accent/20" />
+                    <div className="relative flex items-start gap-5">
+                      <span className="display shrink-0 text-3xl font-semibold leading-none text-ink/20 transition-colors duration-500 group-hover:text-accent md:text-4xl">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <p className="pt-1 text-sm leading-relaxed text-ink/80 md:text-base">{feature}</p>
+                    </div>
+                  </div>
+                </FadeUp>
+              ))}
+            </div>
+
+            {project.technologies && project.technologies.length > 0 && (
+              <FadeUp className="mt-12 flex flex-wrap items-center gap-2.5">
+                <span className="eyebrow mr-2">Built with</span>
                 {project.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="rounded-full border border-ink/10 bg-panel px-4 py-2 font-mono text-xs font-medium text-ink/80 transition-colors duration-300 hover:border-accent/40 hover:text-accent"
+                    className="rounded-full border border-ink/15 px-4 py-1.5 font-mono text-xs font-medium text-ink/75 transition-colors duration-300 hover:border-accent/50 hover:text-accent"
                   >
                     {tech}
                   </span>
                 ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="pb-20 md:pb-28">
-        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
-          <p className="eyebrow mb-10">Gallery</p>
-          <div className="flex flex-col gap-6">
-            {project.gallery.map((image, i) => (
-              <ImageReveal
-                key={image}
-                src={image}
-                alt={`${project.title} — gallery image ${i + 1}`}
-                className={`h-[42vh] w-full rounded-[1.25rem] ${i % 2 === 0 ? "md:h-[60vh]" : "md:h-[46vh] md:ml-auto md:w-4/5"}`}
-                imgClassName="photo-duo"
-                sizes="100vw"
-              />
-            ))}
+              </FadeUp>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="border-t border-ink/5 py-16 md:py-24">
-        <Link
-          href={`/work/${nextProject.slug}`}
-          data-cursor="VIEW"
-          className="group mx-auto block max-w-3xl px-5 md:px-10"
-        >
-          <p className="eyebrow mb-6 flex items-center gap-3">
-            Next Project
-            <span className="h-px flex-1 bg-ink/10" />
-          </p>
+      {/* ── Gallery ─────────────────────────────────────────────────────── */}
+      {project.gallery.length > 0 && <GalleryDeck images={project.gallery} title={project.title} />}
 
-          <TiltCard maxTilt={4} glowColor="rgba(255, 77, 31, 0.16)" className="rounded-2xl">
-            <div className="relative overflow-hidden rounded-2xl border border-ink/10 bg-panel">
-              <ImageReveal
-                src={nextProject.image}
-                alt={`${nextProject.title} — next project`}
-                className="relative h-56 w-full md:h-72"
-                imgClassName="photo-duo transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                sizes="(min-width: 768px) 50vw, 100vw"
-              />
+      {/* ── Prev / Next ─────────────────────────────────────────────────── */}
+      <section className="border-t border-ink/10 py-16 md:py-24">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+          <FadeUp className="mb-8 md:mb-10">
+            <p className="eyebrow mb-6 flex items-center gap-3">
+              Keep Exploring
+              <span className="h-px flex-1 bg-ink/10" />
+            </p>
+          </FadeUp>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_2fr] md:gap-5">
+            {/* Previous */}
+            <Link
+              href={`/work/${prevProject.slug}`}
+              data-cursor="VIEW"
+              className="group relative flex min-h-48 flex-col justify-between overflow-hidden rounded-2xl border border-ink/10 bg-panel p-6 transition-colors duration-500 hover:border-accent/40 md:min-h-56 md:p-7"
+            >
+              <span className="eyebrow">Previous</span>
+              <div className="pr-10">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                  {prevProject.category} · {prevProject.year}
+                </span>
+                <span className="display mt-1 block text-lg font-semibold tracking-tight text-ink transition-transform duration-500 group-hover:-translate-x-1 md:text-xl">
+                  {prevProject.title}
+                </span>
+              </div>
+              <span className="absolute bottom-6 right-6 flex h-10 w-10 items-center justify-center rounded-full border border-ink/20 text-ink transition-all duration-500 group-hover:-translate-x-1 group-hover:border-accent group-hover:text-accent">
+                <ArrowLeft className="h-4 w-4" />
+              </span>
+            </Link>
+
+            {/* Next */}
+            <Link
+              href={`/work/${nextProject.slug}`}
+              data-cursor="VIEW"
+              className="group relative block overflow-hidden rounded-2xl border border-ink/10 bg-panel"
+            >
+              <div className="relative h-56 w-full overflow-hidden md:h-64">
+                <img
+                  src={nextProject.image}
+                  alt={`${nextProject.title} — next project`}
+                  className="h-full w-full object-cover grayscale brightness-[0.7] transition-all duration-700 ease-out group-hover:scale-[1.04] group-hover:grayscale-0 group-hover:brightness-90"
+                  loading="lazy"
+                />
+              </div>
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between gap-4 p-6 md:p-7">
                 <div className="min-w-0">
                   <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-                    {nextProject.category} · {nextProject.year}
+                    Next Project · {nextProject.category} · {nextProject.year}
                   </span>
-                  <span className="display mt-1.5 block truncate text-xl font-medium tracking-tight text-white sm:text-2xl">
+                  <span className="display mt-1.5 block truncate text-xl font-semibold tracking-tight text-white sm:text-2xl md:text-3xl">
                     {nextProject.title}
                   </span>
                 </div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-paper transition-all duration-300 group-hover:rotate-45 group-hover:scale-110">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-paper transition-all duration-300 group-hover:rotate-45 group-hover:scale-110">
                   <ArrowUpRight className="h-4 w-4" />
                 </span>
               </div>
-            </div>
-          </TiltCard>
-        </Link>
+            </Link>
+          </div>
+
+          <FadeUp className="mt-8 flex justify-center md:mt-10">
+            <Link
+              href="/work"
+              className="group inline-flex items-center gap-2 rounded-full border border-ink/20 px-6 py-3 text-sm font-semibold text-ink transition-colors duration-300 hover:border-accent hover:text-accent"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
+              Back to all work
+            </Link>
+          </FadeUp>
+        </div>
       </section>
     </main>
   );
