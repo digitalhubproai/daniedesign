@@ -1,12 +1,11 @@
-"""FastAPI application entry point: wires up CORS, uploads serving, routers and startup seeding."""
+"""FastAPI application entry point: wires up CORS, static uploads, routers and startup seeding."""
 
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.staticfiles import StaticFiles
 
-from app import storage
 from app.config import settings
 from app.database import engine, Base, SessionLocal
 from app.seed_data import seed_database
@@ -72,8 +71,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Uploads are stored in the database (Vercel's function filesystem is read-only
-# and ephemeral) and served by the /uploads/{filename} route below.
+# Uploads Static Files
+upload_directory = settings.upload_path
+# Serve uploaded files at /uploads without going through the API
+app.mount("/uploads", StaticFiles(directory=upload_directory), name="uploads")
 
 # Include Routers (all API routes live under the /api prefix)
 app.include_router(auth_router, prefix="/api")
@@ -100,20 +101,3 @@ def health_check():
         "docs_url": "/docs",
         "crm_auth": "/api/auth/login",
     }
-
-@app.get("/uploads/{filename}", tags=["Uploads & Media"], summary="Serve an uploaded media file")
-def serve_upload(filename: str):
-    """GET /uploads/{filename} — returns the stored bytes with their content type.
-
-    Filenames are UUID-based and immutable, so the response is safe to cache
-    aggressively at the edge.
-    """
-    loaded = storage.load_file(filename)
-    if loaded is None:
-        raise HTTPException(status_code=404, detail="File not found")
-    data, content_type = loaded
-    return Response(
-        content=data,
-        media_type=content_type,
-        headers={"Cache-Control": "public, max-age=31536000, immutable"},
-    )

@@ -11,7 +11,6 @@ from app.models.gallery import StudioGalleryImage
 from app.models.stat import SiteStat, ImpactStory
 from app.models.contact import ContactSubmission
 from app.models.admin import AdminUser
-from app.models.stored_file import StoredFile
 
 __all__ = [
     "Base",
@@ -26,5 +25,4 @@ __all__ = [
     "ImpactStory",
     "ContactSubmission",
     "AdminUser",
-    "StoredFile",
 ]
