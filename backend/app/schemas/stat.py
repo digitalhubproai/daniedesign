@@ -75,3 +75,16 @@ class UploadResponse(BaseModel):
 class MultipleUploadResponse(BaseModel):
     """Batch upload result: only the files that were stored successfully."""
     uploaded: List[UploadResponse]
+
+class MediaFileItem(BaseModel):
+    """One file living in the uploads directory, for the media library picker."""
+    filename: str
+    url: str
+    content_type: str
+    size: int  # bytes
+    modified_at: datetime
+
+class MediaListResponse(BaseModel):
+    """Listing of previously uploaded files (newest first)."""
+    files: List[MediaFileItem]
+    total: int

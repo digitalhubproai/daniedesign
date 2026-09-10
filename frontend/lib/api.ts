@@ -724,3 +724,31 @@ export async function uploadMultipleImages(files: FileList | File[]): Promise<{ 
   const data = await res.json();
   return data.uploaded || [];
 }
+
+/** A file already stored on the server, listed by the media library. */
+export type MediaFileItem = {
+  filename: string;
+  url: string;
+  content_type: string;
+  size: number;
+  modified_at: string;
+};
+
+/**
+ * List previously uploaded media files (newest first) so admin forms can
+ * pick from the server library instead of re-uploading.
+ *
+ * @param kind Optional filter: "image" (default in pickers) or "video".
+ * @returns The stored files; empty array if the backend is unreachable.
+ */
+export async function listMedia(kind: "all" | "image" | "video" = "all"): Promise<MediaFileItem[]> {
+  const res = await fetch(`${API_BASE_URL}/upload/media?kind=${kind}`, { cache: "no-store" });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Failed to load media library");
+  }
+
+  const data = await res.json();
+  return data.files || [];
+}

@@ -1,11 +1,13 @@
 """File upload router: accepts media files and returns public URLs."""
 import os
+import mimetypes
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, HTTPException, status, Request
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, status, Request
 from typing import List
 from app.config import settings
-from app.schemas.stat import UploadResponse, MultipleUploadResponse
+from app.schemas.stat import UploadResponse, MultipleUploadResponse, MediaFileItem, MediaListResponse
 
 router = APIRouter(prefix="/upload", tags=["Uploads & Media"])
 
@@ -105,3 +107,39 @@ async def upload_multiple_images(request: Request, files: List[UploadFile] = Fil
             await file.close()
 
     return MultipleUploadResponse(uploaded=uploaded_files)
+
+@router.get("/media", response_model=MediaListResponse, summary="List previously uploaded media files")
+async def list_media(
+    request: Request,
+    kind: str = Query("all", pattern="^(all|image|video)$"),
+    limit: int = Query(200, ge=1, le=1000),
+):
+    """GET /upload/media — returns files already stored in the uploads dir,
+    newest first, so admin forms can pick from the library instead of
+    re-uploading. `kind=image` filters to still images, `kind=video` to mp4/webm."""
+    image_exts = {".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"}
+    video_exts = {".mp4", ".webm"}
+
+    upload_dir = settings.upload_path
+    items: List[MediaFileItem] = []
+    for entry in os.scandir(upload_dir):
+        if not entry.is_file():
+            continue
+        ext = Path(entry.name).suffix.lower()
+        if ext not in ALLOWED_EXTENSIONS:
+            continue
+        if kind == "image" and ext not in image_exts:
+            continue
+        if kind == "video" and ext not in video_exts:
+            continue
+        stat = entry.stat()
+        items.append(MediaFileItem(
+            filename=entry.name,
+            url=get_file_url(request, entry.name),
+            content_type=mimetypes.guess_type(entry.name)[0] or "application/octet-stream",
+            size=stat.st_size,
+            modified_at=datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
+        ))
+
+    items.sort(key=lambda m: m.modified_at, reverse=True)
+    return MediaListResponse(files=items[:limit], total=len(items))

@@ -1,13 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ImagesScrollingAnimation } from "@/components/animations/ImagesScrollingAnimation";
+import { getProjects } from "@/lib/api";
+import { Project } from "@/data/projects";
 import SplitText from "@/components/animations/SplitText";
 
 /**
  * Featured-work stack section: a sticky heading sits above a
  * scroll-driven stack of project images (ImagesScrollingAnimation).
+ * Shows every project the admin marked as featured — no fixed count.
  */
 export default function FeaturedStack() {
+  const [featured, setFeatured] = useState<Project[]>([]);
+
+  // Live featured (signature) projects from the backend.
+  useEffect(() => {
+    getProjects({ featured: true }).then(setFeatured).catch(() => {});
+  }, []);
+
   return (
     <section className="relative">
       {/* Sticky header — stays pinned while the image stack scrolls beneath it */}
@@ -22,13 +33,13 @@ export default function FeaturedStack() {
             />
           </div>
           <p className="max-w-xs text-sm leading-relaxed text-muted">
-            Four deep collaborations — scroll through the stack to see how each
-            one was built.
+            {featured.length} deep collaborations — scroll through the stack to
+            see how each one was built.
           </p>
         </div>
       </div>
 
-      <ImagesScrollingAnimation />
+      <ImagesScrollingAnimation projects={featured} />
     </section>
   );
 }

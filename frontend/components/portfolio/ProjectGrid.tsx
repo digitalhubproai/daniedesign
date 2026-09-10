@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { projects } from "@/data/projects";
+import { getProjects } from "@/lib/api";
+import { Project } from "@/data/projects";
 import ProjectCard from "./ProjectCard";
 import ProjectFilters from "./ProjectFilters";
 
@@ -17,6 +18,12 @@ const sizePattern = [
 
 export default function ProjectGrid() {
   const [active, setActive] = useState("All");
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Live list from the backend API (demo data is the fallback if unreachable).
+  useEffect(() => {
+    getProjects().then(setProjects).catch(() => {});
+  }, []);
 
   const filtered = active === "All" ? projects : projects.filter((p) => p.category === active);
 

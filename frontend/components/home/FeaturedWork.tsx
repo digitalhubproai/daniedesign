@@ -1,16 +1,26 @@
 "use client";
 
-import { projects } from "@/data/projects";
+import { useEffect, useState } from "react";
+import { getProjects } from "@/lib/api";
+import { Project } from "@/data/projects";
 import ProjectCard from "@/components/portfolio/ProjectCard";
 import SplitText from "@/components/animations/SplitText";
 import Button from "@/components/shared/Button";
 
 /**
- * "Recent Work" homepage grid: shows the six latest projects as
- * portfolio cards with a link to the full work archive.
+ * "Recent Work" homepage grid: shows the latest projects as portfolio cards
+ * with a link to the full work archive. (The "Signature projects." stack
+ * below is separate — that one is driven by the featured checkbox.)
  */
 export default function FeaturedWork() {
-  // Homepage features only the six most recent projects
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Live list from the backend API (demo data is the fallback if unreachable).
+  useEffect(() => {
+    getProjects().then(setProjects).catch(() => {});
+  }, []);
+
+  // Homepage grid shows the six most recent projects
   const recent = projects.slice(0, 6);
 
   return (

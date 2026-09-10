@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Dev-only: the FastAPI backend serves /uploads from localhost, which
+    // Next 16's image optimizer blocks by default (private-IP SSRF guard).
+    dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
     remotePatterns: [
       {
         protocol: "https",

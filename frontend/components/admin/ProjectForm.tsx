@@ -19,6 +19,7 @@ import {
   Star,
 } from "lucide-react";
 import { createProject, updateProject, uploadImage, uploadMultipleImages } from "@/lib/api";
+import MediaLibraryPicker from "@/components/admin/MediaLibraryPicker";
 import { Project } from "@/data/projects";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,8 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
   const [newTag, setNewTag] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  // Which field the media-library picker is currently choosing for (null = closed).
+  const [pickerFor, setPickerFor] = useState<"cover" | "gallery" | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -130,6 +133,16 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
       ...prev,
       gallery: prev.gallery?.filter((_, i) => i !== index),
     }));
+  };
+
+  // Media-library selection: cover takes one URL, gallery appends the batch.
+  const handlePickerSelect = (urls: string[]) => {
+    if (pickerFor === "cover") {
+      setForm((prev) => ({ ...prev, image: urls[0] }));
+    } else if (pickerFor === "gallery") {
+      setForm((prev) => ({ ...prev, gallery: [...(prev.gallery || []), ...urls] }));
+    }
+    setPickerFor(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -373,6 +386,15 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
                   onChange={(e) => setForm({ ...form, image: e.target.value })}
                   placeholder="Or paste direct image URL"
                 />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={() => setPickerFor("cover")}
+                >
+                  <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Pick from Media Library
+                </Button>
                 {form.image && (
                   <div className="relative aspect-[16/10] w-full rounded-lg overflow-hidden border border-white/10 bg-black/40">
                     <Image src={form.image} alt="Cover Preview" fill className="object-cover" />
@@ -428,6 +450,16 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
               </p>
               <p className="text-[10px] font-mono text-white/40 mt-0.5">Select multiple images at once</p>
             </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => setPickerFor("gallery")}
+            >
+              <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Pick from Media Library
+            </Button>
 
             {form.gallery && form.gallery.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -518,6 +550,15 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
           )}
         </Button>
       </div>
+
+      {/* Media library modal: opened from the cover/gallery "Pick from Media Library" buttons */}
+      <MediaLibraryPicker
+        open={pickerFor !== null}
+        onClose={() => setPickerFor(null)}
+        onSelect={handlePickerSelect}
+        multiple={pickerFor === "gallery"}
+        title={pickerFor === "gallery" ? "Pick Gallery Images" : "Pick Cover Image"}
+      />
     </form>
   );
 }

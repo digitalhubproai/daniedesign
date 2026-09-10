@@ -1,11 +1,12 @@
-// "/work/[slug]" project case-study pages. Server components, statically
-// prerendered at build time (one page per slug via generateStaticParams) and
-// fully sourced from the static @/data/projects list — no API fetch.
+// "/work/[slug]" project case-study pages. Server components; the record is
+// fetched live from the backend API (getProjectBySlug falls back to the static
+// @/data/projects demo list when the API is unreachable).
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { projects, getProject } from "@/data/projects";
+import { getProject, projects } from "@/data/projects";
+import { getProjectBySlug, getProjects } from "@/lib/api";
 import ImageReveal from "@/components/animations/ImageReveal";
 import SplitText from "@/components/animations/SplitText";
 import TiltCard from "@/components/animations/TiltCard";
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export function generateStaticParams() {
+  // Pre-render the demo slugs at build time; CMS-created slugs render on demand.
   return projects.map((project) => ({ slug: project.slug }));
 }
 
@@ -22,7 +24,7 @@ export function generateStaticParams() {
 // minimal fallback title (the page itself then triggers notFound() below).
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProject(slug);
+  const project = (await getProjectBySlug(slug)) ?? getProject(slug);
   if (!project) return { title: "Project Not Found" };
   return {
     title: project.title,
@@ -33,13 +35,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectPage({ params }: Props) {
   // params is a Promise in this Next version — await it before reading the slug.
   const { slug } = await params;
-  const project = getProject(slug);
+  // Live project from the API, demo list as fallback.
+  const project = (await getProjectBySlug(slug)) ?? getProject(slug);
   // Unknown slug: render the app-level 404 (app/not-found.tsx).
   if (!project) notFound();
 
   // Circular "next project" link — wraps back to the first project after the last.
-  const nextIndex = (projects.findIndex((p) => p.slug === slug) + 1) % projects.length;
-  const nextProject = projects[nextIndex];
+  const allProjects = await getProjects();
+  const nextIndex = (allProjects.findIndex((p) => p.slug === slug) + 1) % allProjects.length;
+  const nextProject = allProjects[nextIndex] ?? project;
 
   return (
     <main>
