@@ -1,15 +1,19 @@
 // "/work/[slug]" — full case-study page. Server component.
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Target, Lightbulb, PenTool, Code2, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Target, Lightbulb, PenTool, Code2, Sparkles } from "lucide-react";
 import { getProject, projects } from "@/data/projects";
 import { getProjectBySlug, getProjects } from "@/lib/api";
 import FadeUp from "@/components/animations/FadeUp";
+import TiltCard from "@/components/animations/TiltCard";
+import RollNumber from "@/components/animations/RollNumber";
 import ProjectHero from "@/components/portfolio/ProjectHero";
 import GalleryDeck from "@/components/portfolio/GalleryDeck";
 import ScrollProgress from "@/components/portfolio/ScrollProgress";
+import ParallaxFrame from "@/components/portfolio/ParallaxFrame";
+import ImpactBand, { type ProjectStat } from "@/components/portfolio/ImpactBand";
+import ChapterRail from "@/components/portfolio/ChapterRail";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -26,13 +30,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: project.title, description: project.description };
 }
 
+/** Narrative steps; "outcome" is promoted to its own ImpactBand section. */
 const NARRATIVE_STEPS = [
-  { key: "challenge", label: "The Challenge", icon: Target, color: "text-red-400" },
-  { key: "approach", label: "Our Approach", icon: Lightbulb, color: "text-amber-400" },
-  { key: "design", label: "The Design", icon: PenTool, color: "text-purple-400" },
-  { key: "development", label: "In Development", icon: Code2, color: "text-blue-400" },
-  { key: "outcome", label: "The Outcome", icon: Trophy, color: "text-emerald-400" },
+  { key: "challenge", label: "The Challenge", icon: Target, color: "text-red-400", note: "Where we started" },
+  { key: "approach", label: "Our Approach", icon: Lightbulb, color: "text-amber-400", note: "How we thought" },
+  { key: "design", label: "The Design", icon: PenTool, color: "text-purple-400", note: "How it took shape" },
+  { key: "development", label: "In Development", icon: Code2, color: "text-blue-400", note: "How it was built" },
 ] as const;
+
+/**
+ * Pull up-to-three metric highlights out of the outcome copy so the ImpactBand
+ * can animate them as counting stats ("45% lift…" → 45% + "lift in …").
+ */
+function extractStats(text: string): ProjectStat[] {
+  const re = /(\d+(?:\.\d+)?)\s*(k\+|%|\+|x|X)?/g;
+  const stats: ProjectStat[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null && stats.length < 3) {
+    const value = parseFloat(m[1]);
+    if (!Number.isFinite(value)) continue;
+    const suffix = m[2] === "X" ? "x" : m[2] ?? "";
+    const decimals = (m[1].split(".")[1] ?? "").length;
+    const label =
+      text
+        .slice(m.index + m[0].length)
+        .match(/^[,.\s]*([A-Za-z][A-Za-z'’/-]+(?:\s+[A-Za-z][A-Za-z'’/-]+){0,4})/)?.[1]
+        .toLowerCase() ?? "";
+    if (label.length < 3) continue;
+    stats.push({ value, suffix, decimals, label });
+  }
+  return stats;
+}
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
@@ -49,6 +77,10 @@ export default async function ProjectPage({ params }: Props) {
     index: i + 1,
     body: (project[s.key] ?? "").trim(),
   })).filter((s) => s.body.length > 0);
+
+  const outcome = (project.outcome ?? "").trim();
+  const stats = outcome ? extractStats(outcome) : [];
+  const chapters = steps.map((s) => ({ key: s.key, label: s.label }));
 
   return (
     <main>
@@ -73,7 +105,8 @@ export default async function ProjectPage({ params }: Props) {
             { label: "Scope", value: `${project.services.length} service${project.services.length === 1 ? "" : "s"}`, num: "03" },
             { label: "Stack", value: project.technologies?.length ? `${project.technologies.length} technologies` : "Full-stack", num: "04" },
           ].map((fact, i) => (
-            <FadeUp key={fact.label} delay={i * 0.06} className="group py-7 md:py-9 md:not-first:border-l md:not-first:border-ink/10 md:pl-6">
+            <FadeUp key={fact.label} delay={i * 0.06} className="group relative py-7 md:py-9 md:not-first:border-l md:not-first:border-ink/10 md:pl-6">
+              <span className="absolute left-0 top-0 h-px w-0 bg-accent transition-all duration-700 group-hover:w-full md:left-6" aria-hidden="true" />
               <div className="flex items-center gap-2">
                 <span className="font-mono text-[10px] font-bold tracking-[0.3em] text-accent/60">{fact.num}</span>
                 <p className="eyebrow">{fact.label}</p>
@@ -84,30 +117,18 @@ export default async function ProjectPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ── Full-width project image ────────────────────────────────────── */}
+      {/* ── Full-width project image, parallax plate ────────────────────── */}
       {project.image && (
-        <section className="py-12 md:py-20">
-          <div className="mx-auto max-w-[1440px] px-5 md:px-10">
-            <FadeUp>
-              <div className="relative overflow-hidden rounded-2xl border border-ink/10">
-                <div className="relative aspect-[16/7] w-full">
-                  <Image
-                    src={project.image}
-                    alt={`${project.title} — full project view`}
-                    fill
-                    sizes="(min-width: 1024px) 80vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            </FadeUp>
-          </div>
-        </section>
+        <ParallaxFrame
+          src={project.image}
+          alt={`${project.title} — full project view`}
+          caption={`${project.title} — ${project.year}`}
+        />
       )}
 
       {/* ── Narrative ───────────────────────────────────────────────────── */}
       {steps.length > 0 && (
-        <section className="py-20 md:py-32">
+        <section className="relative py-20 md:py-32">
           <div className="mx-auto max-w-[1440px] px-5 md:px-10">
             <FadeUp className="mb-12 md:mb-16">
               <p className="eyebrow mb-4 flex items-center gap-3">
@@ -120,9 +141,15 @@ export default async function ProjectPage({ params }: Props) {
             </FadeUp>
 
             <div className="md:grid md:grid-cols-[16rem_1fr] md:gap-16">
-              {/* Sticky sidebar */}
+              {/* Sticky chapter rail + project meta */}
               <div className="mb-10 md:mb-0">
                 <div className="sticky top-32">
+                  {chapters.length > 1 && (
+                    <div className="mb-6 hidden md:block">
+                      <p className="eyebrow mb-3">Chapters</p>
+                      <ChapterRail chapters={chapters} />
+                    </div>
+                  )}
                   <div className="rounded-2xl border border-ink/10 bg-panel/60 p-6">
                     <p className="eyebrow mb-2">Project</p>
                     <p className="display text-xl font-semibold leading-tight text-ink">
@@ -151,10 +178,19 @@ export default async function ProjectPage({ params }: Props) {
                   const Icon = step.icon;
                   return (
                     <FadeUp key={step.key}>
-                      <div className="group border-t border-ink/10 py-10 first:border-t-0 first:pt-0 md:py-14">
-                        <div className="flex items-start gap-5">
+                      <div
+                        id={`step-${step.key}`}
+                        className="group relative scroll-mt-32 border-t border-ink/10 py-10 first:border-t-0 first:pt-0 md:py-14"
+                      >
+                        <span
+                          className="display pointer-events-none absolute -top-2 right-0 select-none text-[7rem] font-bold leading-none text-ink/[0.03] transition-colors duration-700 group-hover:text-accent/[0.07] md:text-[9rem]"
+                          aria-hidden="true"
+                        >
+                          {String(step.index).padStart(2, "0")}
+                        </span>
+                        <div className="relative flex items-start gap-5">
                           <div className="relative shrink-0">
-                            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-ink/10 bg-panel transition-all duration-500 group-hover:border-accent/30 group-hover:bg-accent/10">
+                            <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-ink/10 bg-panel transition-all duration-500 group-hover:-rotate-6 group-hover:border-accent/30 group-hover:bg-accent/10">
                               <Icon className={`h-5 w-5 ${step.color}`} />
                             </span>
                             {i < steps.length - 1 && (
@@ -168,6 +204,9 @@ export default async function ProjectPage({ params }: Props) {
                                 {String(step.index).padStart(2, "0")}
                               </span>
                               <p className="eyebrow">{step.label}</p>
+                              <span className="hidden font-mono text-[10px] tracking-[0.15em] text-ink/25 lg:inline">
+                                · {step.note}
+                              </span>
                             </div>
                             <p className="display max-w-3xl text-lg font-medium leading-[1.6] tracking-tight text-ink/85 md:text-xl">
                               {step.body}
@@ -184,6 +223,9 @@ export default async function ProjectPage({ params }: Props) {
         </section>
       )}
 
+      {/* ── Impact / Outcome ────────────────────────────────────────────── */}
+      {outcome && <ImpactBand quote={outcome} stats={stats} projectTitle={project.title} />}
+
       {/* ── Key Features ────────────────────────────────────────────────── */}
       {project.features && project.features.length > 0 && (
         <section className="relative border-t border-ink/10 py-20 md:py-28">
@@ -193,7 +235,7 @@ export default async function ProjectPage({ params }: Props) {
             <FadeUp className="mb-10 md:mb-14">
               <p className="eyebrow mb-4 flex items-center gap-3">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
-                  <span className="font-mono text-xs font-bold text-accent">F</span>
+                  <Sparkles className="h-4 w-4 text-accent" />
                 </span>
                 Key Features
                 <span className="h-px flex-1 bg-ink/10" />
@@ -203,15 +245,16 @@ export default async function ProjectPage({ params }: Props) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {project.features.map((feature, i) => (
                 <FadeUp key={i} delay={(i % 2) * 0.08} className="h-full">
-                  <div className="group relative h-full overflow-hidden rounded-2xl border border-ink/10 bg-panel p-7 transition-all duration-500 hover:border-accent/40 hover:bg-card md:p-8">
-                    <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/0 blur-2xl transition-all duration-700 group-hover:bg-accent/20" />
-                    <div className="relative flex items-start gap-5">
-                      <span className="display shrink-0 text-3xl font-semibold leading-none text-ink/20 transition-colors duration-500 group-hover:text-accent md:text-4xl">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <p className="pt-1 text-sm leading-relaxed text-ink/80 md:text-base">{feature}</p>
+                  <TiltCard maxTilt={4} className="h-full rounded-2xl">
+                    <div className="group relative h-full overflow-hidden rounded-2xl border border-ink/10 bg-panel p-7 md:p-8">
+                      <div className="relative flex items-start gap-5 md:gap-6">
+                        <span className="display shrink-0 text-5xl font-bold leading-none text-ink/10 [-webkit-text-stroke:1.5px_rgba(244,242,238,0.45)] transition-all duration-500 group-hover:text-accent/20 group-hover:[-webkit-text-stroke:1.5px_rgba(255,77,31,0.85)] md:text-6xl">
+                          <RollNumber value={i + 1} />
+                        </span>
+                        <p className="pt-1 text-sm leading-relaxed text-ink/80 md:text-base">{feature}</p>
+                      </div>
                     </div>
-                  </div>
+                  </TiltCard>
                 </FadeUp>
               ))}
             </div>
@@ -222,7 +265,7 @@ export default async function ProjectPage({ params }: Props) {
                 {project.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="rounded-full border border-ink/15 px-4 py-1.5 font-mono text-xs font-medium text-ink/75 transition-colors duration-300 hover:border-accent/50 hover:text-accent"
+                    className="group rounded-full border border-ink/15 px-4 py-1.5 font-mono text-xs font-medium text-ink/75 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/50 hover:bg-accent/10 hover:text-accent"
                   >
                     {tech}
                   </span>
@@ -253,6 +296,7 @@ export default async function ProjectPage({ params }: Props) {
               data-cursor="VIEW"
               className="group relative flex min-h-48 flex-col justify-between overflow-hidden rounded-2xl border border-ink/10 bg-panel p-6 transition-colors duration-500 hover:border-accent/40 md:min-h-56 md:p-7"
             >
+              <span className="absolute inset-x-0 top-0 h-px w-0 bg-accent transition-all duration-700 group-hover:w-full" aria-hidden="true" />
               <span className="eyebrow">Previous</span>
               <div className="pr-10">
                 <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">

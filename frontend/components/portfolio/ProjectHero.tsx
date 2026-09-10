@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { MoveDown } from "lucide-react";
 import SplitText from "@/components/animations/SplitText";
 
@@ -35,9 +42,25 @@ export default function ProjectHero({
   const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
 
+  // Mouse-follow spotlight: spring-smoothed radial glow over the scrim.
+  const mx = useMotionValue(0.5);
+  const my = useMotionValue(0.35);
+  const sx = useSpring(mx, { stiffness: 60, damping: 18, mass: 0.4 });
+  const sy = useSpring(my, { stiffness: 60, damping: 18, mass: 0.4 });
+  const spotX = useTransform(sx, (v) => `${v * 100}%`);
+  const spotY = useTransform(sy, (v) => `${v * 100}%`);
+  const spotlight = useMotionTemplate`radial-gradient(38rem 26rem at ${spotX} ${spotY}, rgba(255,77,31,0.16), transparent 70%)`;
+
+  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mx.set((e.clientX - rect.left) / rect.width);
+    my.set((e.clientY - rect.top) / rect.height);
+  };
+
   return (
     <section
       ref={rootRef}
+      onPointerMove={onPointerMove}
       className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
     >
       {/* Parallax backdrop */}
@@ -60,8 +83,14 @@ export default function ProjectHero({
         ) : (
           <motion.div
             initial={{ scale: 1.18 }}
-            animate={{ scale: 1.1 }}
-            transition={{ duration: 3, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ scale: [1.18, 1.1, 1.14, 1.1] }}
+            transition={{
+              duration: 3,
+              times: [0, 0.35, 0.68, 1],
+              ease: "easeOut",
+              repeat: Infinity,
+              repeatDelay: 6,
+            }}
             className="relative h-full w-full"
           >
             <Image
@@ -80,21 +109,32 @@ export default function ProjectHero({
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" aria-hidden="true" />
 
+      {/* Mouse-follow spotlight glow */}
+      <motion.div
+        style={{ background: spotlight, opacity: fade }}
+        className="pointer-events-none absolute inset-0 z-[5] hidden md:block"
+        aria-hidden="true"
+      />
+
       {/* Title block */}
       <motion.div
         style={{ y: contentY, opacity: fade }}
         className="relative z-10 mx-auto w-full max-w-[1440px] px-5 pb-20 md:px-10 md:pb-28"
       >
-        {/* Category badge */}
+        {/* Category line — editorial eyebrow like the homepage hero, not a button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-accent px-5 py-2.5 md:mb-8"
+          className="mb-6 flex items-center gap-4 md:mb-8"
         >
-          <span className="h-2 w-2 rounded-full bg-white" />
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-[#0e0e0e]">
-            {category} — {year}
+          <span className="h-px w-10 bg-accent" aria-hidden="true" />
+          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-white/85 md:text-xs">
+            {category}
+          </span>
+          <span className="h-1 w-1 rounded-full bg-white/40" aria-hidden="true" />
+          <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-accent md:text-xs">
+            {year}
           </span>
         </motion.div>
 

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { gsap } from "@/lib/gsap";
+import RollNumber from "@/components/animations/RollNumber";
 import { X, ArrowLeft, ArrowRight, ZoomIn } from "lucide-react";
 
 type GalleryDeckProps = {
@@ -17,6 +18,8 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
   const barRef = useRef<HTMLDivElement>(null);
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [direction, setDirection] = useState<"next" | "prev">("next");
+  const touchStartX = useRef<number | null>(null);
 
   const openLightbox = useCallback((index: number) => {
     setLightboxIndex(index);
@@ -26,11 +29,25 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
     setLightboxIndex(null);
   }, []);
 
+  const goTo = useCallback(
+    (index: number) => {
+      if (lightboxIndex !== null) {
+        const wrappedNext = lightboxIndex === images.length - 1 && index === 0;
+        const wrappedPrev = lightboxIndex === 0 && index === images.length - 1;
+        setDirection(wrappedNext || (index > lightboxIndex && !wrappedPrev) ? "next" : "prev");
+      }
+      setLightboxIndex(index);
+    },
+    [lightboxIndex, images.length]
+  );
+
   const nextImage = useCallback(() => {
+    setDirection("next");
     setLightboxIndex((prev) => (prev === null ? null : (prev + 1) % images.length));
   }, [images.length]);
 
   const prevImage = useCallback(() => {
+    setDirection("prev");
     setLightboxIndex((prev) => (prev === null ? null : (prev - 1 + images.length) % images.length));
   }, [images.length]);
 
@@ -43,15 +60,42 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
     document.body.style.overflow = "hidden";
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setLightboxIndex(null);
-      if (e.key === "ArrowRight") setLightboxIndex((p) => (p === null ? null : (p + 1) % images.length));
-      if (e.key === "ArrowLeft") setLightboxIndex((p) => (p === null ? null : (p - 1 + images.length) % images.length));
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); nextImage(); }
+      if (e.key === "ArrowLeft") prevImage();
+      if (e.key === "Home") goTo(0);
+      if (e.key === "End") goTo(images.length - 1);
     };
     window.addEventListener("keydown", handleKey);
     return () => {
       window.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
     };
-  }, [lightboxIndex, images.length]);
+  }, [lightboxIndex, images.length, nextImage, prevImage, goTo]);
+
+  // Prefetch adjacent images so next/prev feels instant.
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    [1, -1].forEach((delta) => {
+      const src = images[(lightboxIndex + delta + images.length) % images.length];
+      if (src) {
+        const img = new window.Image();
+        img.src = src;
+      }
+    });
+  }, [lightboxIndex, images]);
+
+  // Touch swipe on the lightbox
+  const touchHandlers = {
+    onTouchStart: (e: React.TouchEvent) => {
+      touchStartX.current = e.touches[0]?.clientX ?? null;
+    },
+    onTouchEnd: (e: React.TouchEvent) => {
+      if (touchStartX.current === null) return;
+      const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current;
+      touchStartX.current = null;
+      if (Math.abs(dx) > 48) (dx < 0 ? nextImage : prevImage)();
+    },
+  };
 
   // GSAP scroll animation
   useEffect(() => {
@@ -150,8 +194,8 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
                   <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-ink/80">
                     {title}
                   </span>
-                  <span className="display text-4xl font-medium leading-none text-white/25 transition-colors duration-500 group-hover:text-accent md:text-5xl">
-                    {String(i + 1).padStart(2, "0")}
+                  <span className="display text-6xl font-bold leading-none text-white/15 [-webkit-text-stroke:1.5px_rgba(255,255,255,0.7)] drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)] transition-all duration-500 group-hover:text-accent/30 group-hover:[-webkit-text-stroke:1.5px_rgba(255,77,31,0.95)] md:text-7xl">
+                    <RollNumber value={i + 1} />
                   </span>
                 </figcaption>
               </figure>
@@ -191,27 +235,46 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
         <div
           className="lightbox-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl"
           onClick={closeLightbox}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${title} — gallery viewer`}
+          {...touchHandlers}
         >
-          {/* Ambient glow behind image */}
+          {/* Ambient glow behind image — tinted by current view */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
-            <div className="h-[60vh] w-[60vh] rounded-full bg-accent/8 blur-[150px]" />
+            <div
+              key={`glow-${lightboxIndex}`}
+              className="lightbox-pop h-[60vh] w-[60vh] rounded-full bg-accent/8 blur-[150px]"
+            />
           </div>
 
           {/* Close */}
           <button
             onClick={closeLightbox}
-            className="lightbox-ui absolute right-5 top-5 z-[120] flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 backdrop-blur-md transition-all duration-300 hover:border-accent hover:bg-accent hover:text-[#0e0e0e] md:right-8 md:top-8"
+            className="lightbox-ui absolute right-5 top-5 z-[120] flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 backdrop-blur-md transition-all duration-300 hover:rotate-90 hover:border-accent hover:bg-accent hover:text-[#0e0e0e] md:right-8 md:top-8"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
 
-          {/* Counter */}
+          {/* Counter + position ring */}
           <div className="lightbox-ui absolute left-5 top-5 z-[120] md:left-8 md:top-8">
             <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              <span className="relative flex h-4 w-4 items-center justify-center">
+                <svg className="absolute inset-0 h-4 w-4 -rotate-90" viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+                  <circle
+                    cx="8" cy="8" r="6.5" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 6.5}
+                    strokeDashoffset={2 * Math.PI * 6.5 * (1 - (lightboxIndex + 1) / images.length)}
+                    style={{ transition: "stroke-dashoffset 0.5s cubic-bezier(0.22,1,0.36,1)" }}
+                  />
+                </svg>
+              </span>
               <span className="font-mono text-xs font-medium tracking-[0.2em] text-white/80">
-                {String(lightboxIndex + 1).padStart(2, "0")}
+                <span key={`c-${lightboxIndex}`} className="lightbox-pop inline-block text-accent">
+                  {String(lightboxIndex + 1).padStart(2, "0")}
+                </span>
                 <span className="mx-1.5 text-white/30">/</span>
                 {String(images.length).padStart(2, "0")}
               </span>
@@ -220,7 +283,10 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
 
           {/* Image + buttons container */}
           <div
-            className="lightbox-image relative h-[85vh] w-[92vw] max-w-[1400px] cursor-default"
+            key={lightboxIndex}
+            className={`cursor-default relative h-[85vh] w-[92vw] max-w-[1400px] ${
+              direction === "next" ? "lightbox-enter-next" : "lightbox-enter-prev"
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Subtle border glow */}
@@ -236,12 +302,18 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
                 className="object-contain"
                 priority
               />
+              {/* Sheen sweep after the image settles */}
+              <span
+                key={`sheen-${lightboxIndex}`}
+                aria-hidden="true"
+                className="lightbox-sheen pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/14 to-transparent"
+              />
             </div>
 
             {/* Prev button — inside image, left side */}
             <button
               onClick={(e) => { e.stopPropagation(); prevImage(); }}
-              className="lightbox-ui absolute left-3 top-1/2 z-[10] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 backdrop-blur-md transition-all duration-300 hover:border-accent hover:bg-accent hover:text-[#0e0e0e] hover:scale-110 sm:left-4 md:left-5 md:h-14 md:w-14"
+              className="absolute left-3 top-1/2 z-[10] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 backdrop-blur-md transition-all duration-300 hover:border-accent hover:bg-accent hover:text-[#0e0e0e] hover:scale-110 hover:-translate-x-0.5 sm:left-4 md:left-5 md:h-14 md:w-14"
               aria-label="Previous"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -250,7 +322,7 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
             {/* Next button — inside image, right side */}
             <button
               onClick={(e) => { e.stopPropagation(); nextImage(); }}
-              className="lightbox-ui absolute right-3 top-1/2 z-[10] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 backdrop-blur-md transition-all duration-300 hover:border-accent hover:bg-accent hover:text-[#0e0e0e] hover:scale-110 sm:right-4 md:right-5 md:h-14 md:w-14"
+              className="absolute right-3 top-1/2 z-[10] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 backdrop-blur-md transition-all duration-300 hover:border-accent hover:bg-accent hover:text-[#0e0e0e] hover:scale-110 hover:translate-x-0.5 sm:right-4 md:right-5 md:h-14 md:w-14"
               aria-label="Next"
             >
               <ArrowRight className="h-5 w-5" />
@@ -259,6 +331,13 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
 
           {/* Bottom bar */}
           <div className="lightbox-ui absolute bottom-0 inset-x-0 z-[120]">
+            {/* Scrub progress line */}
+            <div className="mx-auto mb-4 h-px max-w-[1440px] overflow-hidden bg-white/10 md:px-10">
+              <div
+                className="h-full bg-accent transition-[width] duration-500 ease-out"
+                style={{ width: `${((lightboxIndex + 1) / images.length) * 100}%` }}
+              />
+            </div>
             <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-5 md:px-10 md:py-6">
               <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
                 {title}
@@ -269,7 +348,7 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
                 {images.map((_, i) => (
                   <button
                     key={i}
-                    onClick={(e) => { e.stopPropagation(); setLightboxIndex(i); }}
+                    onClick={(e) => { e.stopPropagation(); goTo(i); }}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
                       i === lightboxIndex
                         ? "w-6 bg-accent"
@@ -281,8 +360,8 @@ export default function GalleryDeck({ images, title }: GalleryDeckProps) {
               </div>
 
               <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
-                <span className="hidden md:inline">Click image to close</span>
-                <span className="md:hidden">Tap to close</span>
+                <span className="hidden md:inline">Swipe · ← → keys · Esc to close</span>
+                <span className="md:hidden">Swipe to browse</span>
               </p>
             </div>
           </div>

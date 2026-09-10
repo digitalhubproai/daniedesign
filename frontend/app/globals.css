@@ -247,6 +247,92 @@ body {
   animation: lightbox-ui-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 }
 
+/* Lightbox image enter: iris clip-reveal + blur-to-focus + directional drift,
+   followed by a light sheen sweeping across the settled image. */
+@keyframes lightbox-enter-next {
+  0% {
+    opacity: 0;
+    transform: translateX(5%) scale(1.08);
+    filter: blur(28px) saturate(1.5);
+    clip-path: inset(5% 5% round 28px);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0) saturate(1);
+    clip-path: inset(0% 0% round 8px);
+  }
+}
+
+@keyframes lightbox-enter-prev {
+  0% {
+    opacity: 0;
+    transform: translateX(-5%) scale(1.08);
+    filter: blur(28px) saturate(1.5);
+    clip-path: inset(5% 5% round 28px);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0) saturate(1);
+    clip-path: inset(0% 0% round 8px);
+  }
+}
+
+.lightbox-enter-next {
+  animation: lightbox-enter-next 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lightbox-enter-prev {
+  animation: lightbox-enter-prev 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lightbox-sheen {
+  0% {
+    transform: translateX(-160%) skewX(-18deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(420%) skewX(-18deg);
+    opacity: 0;
+  }
+}
+
+.lightbox-sheen {
+  animation: lightbox-sheen 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.45s both;
+}
+
+@keyframes lightbox-pop {
+  0% {
+    transform: translateY(-35%) scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(2%) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.lightbox-pop {
+  animation: lightbox-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
