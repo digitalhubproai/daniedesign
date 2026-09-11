@@ -56,6 +56,7 @@ export default function ContactForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(false);
 
   const set =
     (field: keyof FormState) =>
@@ -82,11 +83,15 @@ export default function ContactForm() {
     if (Object.values(next).some(Boolean)) return;
 
     setLoading(true);
+    setApiError(false);
     try {
       await submitContactInquiry(form);
-    } catch {}
+      setSent(true);
+    } catch {
+      // Backend unreachable — keep the form filled and offer a direct email fallback.
+      setApiError(true);
+    }
     setLoading(false);
-    setSent(true);
   };
 
   if (sent) {
@@ -335,6 +340,27 @@ export default function ContactForm() {
             Response within 1 business day
           </span>
         </motion.div>
+
+        <AnimatePresence>
+          {apiError && (
+            <motion.p
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-400"
+            >
+              Something went wrong and we couldn&apos;t send your message. Please
+              try again, or email us directly at{" "}
+              <a
+                href={`mailto:${contact.email}`}
+                className="underline underline-offset-4"
+              >
+                {contact.email}
+              </a>
+              .
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </motion.form>
   );

@@ -36,6 +36,23 @@ class Settings(BaseSettings):
     # Admin CRM — creds must come from the environment
     ADMIN_EMAIL: str = ""
     ADMIN_PASSWORD: str = ""
+
+    # Outbound email (Brevo SMTP relay) — inquiry notifications.
+    # Credentials come from the environment; SMTP_PASSWORD is the Brevo SMTP
+    # key. The relay is silently skipped if SMTP_PASSWORD is not configured.
+    SMTP_HOST: str = "smtp-relay.brevo.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    # Brevo REST API key (Settings -> SMTP & API -> API key). Preferred over
+    # SMTP because it needs no IP allowlisting and works on Vercel.
+    BREVO_API_KEY: str = ""
+    # Verified sender address shown on the notification email (Brevo requires
+    # this to be a sender you verified in its dashboard).
+    SMTP_FROM_EMAIL: str = "daniedesignz@gmail.com"
+    SMTP_FROM_NAME: str = "Danie Design Website"
+    # Where new-inquiry notifications are delivered.
+    NOTIFY_EMAIL: str = "daniedesignz@gmail.com"
     # Signing key for admin JWTs — set a strong random value in every environment
     JWT_SECRET: str = ""
     JWT_ALGORITHM: str = "HS256"

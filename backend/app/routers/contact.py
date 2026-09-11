@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
+from app.email_notify import send_inquiry_notification, send_thanks_email
 from app.models.contact import ContactSubmission
 from app.schemas.stat import ContactCreate, ContactResponse
 
@@ -11,11 +12,23 @@ router = APIRouter(prefix="/contact", tags=["Contact Inquiries"])
 @router.post("", response_model=ContactResponse, status_code=status.HTTP_201_CREATED, summary="Submit inquiry")
 def submit_contact_form(contact_in: ContactCreate, db: Session = Depends(get_db)):
     """POST /contact — public endpoint for the website contact form; stores
-    the inquiry with a default status and returns 201."""
+    the inquiry with a default status, emails the studio inbox, and returns
+    201."""
     submission = ContactSubmission(**contact_in.model_dump())
     db.add(submission)
     db.commit()
     db.refresh(submission)
+    # Best-effort email notifications; never fail the submission (already in DB).
+    send_inquiry_notification(
+        name=submission.name,
+        email=submission.email,
+        company=submission.company or "",
+        service=submission.service,
+        message=submission.message,
+        inquiry_id=submission.id,
+    )
+    # Auto thank-you reply to the visitor.
+    send_thanks_email(submission.name, submission.email, submission.service)
     return submission
 
 @router.get("", response_model=List[ContactResponse], summary="Get inquiries")
