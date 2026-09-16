@@ -28,7 +28,11 @@ class Settings(BaseSettings):
     BASE_URL: str = "http://localhost:8000"
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+    CORS_ORIGINS: str = (
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "http://localhost:3001,http://127.0.0.1:3001,"
+        "https://daniedesign.vercel.app"
+    )
 
     # Uploads (files live in the DB now). Images retain the smaller limit,
     # while project videos may be substantially larger.

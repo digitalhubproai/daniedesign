@@ -63,10 +63,16 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS: open to all origins in development, restricted to the configured list in production
+# CORS: open to all origins in development, restricted in production. Keep the
+# production frontend here as well as in config so an older CORS_ORIGINS Vercel
+# environment variable cannot accidentally block the deployed CMS.
+production_origins = list(dict.fromkeys([
+    *settings.cors_origin_list,
+    "https://daniedesign.vercel.app",
+]))
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.ENVIRONMENT == "development" else settings.cors_origin_list,
+    allow_origins=["*"] if settings.ENVIRONMENT == "development" else production_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
