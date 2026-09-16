@@ -114,6 +114,13 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const maxVideoBytes = 180 * 1024 * 1024;
+    if (file.size > maxVideoBytes) {
+      setError("Video must be 180MB or smaller.");
+      e.target.value = "";
+      return;
+    }
+
     setUploadingVideo(true);
     setError(null);
     try {
@@ -458,7 +465,7 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
                 <p className="text-xs font-semibold text-white">
                   {uploadingVideo ? "Uploading Video..." : "Click or Drag Project Video"}
                 </p>
-                <p className="text-[10px] font-mono text-white/40 mt-0.5">MP4 or WEBM up to 25MB</p>
+                <p className="text-[10px] font-mono text-white/40 mt-0.5">MP4 or WEBM up to 180MB</p>
               </div>
 
               <div className="space-y-2">

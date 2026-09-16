@@ -30,8 +30,10 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
 
-    # Uploads (files live in the DB now; only the size limit remains here)
+    # Uploads (files live in the DB now). Images retain the smaller limit,
+    # while project videos may be substantially larger.
     MAX_UPLOAD_SIZE_MB: int = 25
+    MAX_VIDEO_UPLOAD_SIZE_MB: int = 180
 
     # Admin CRM — creds must come from the environment
     ADMIN_EMAIL: str = ""

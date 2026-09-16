@@ -77,7 +77,7 @@ export default function AdminMediaPage() {
             {uploading ? "Uploading Assets to Server..." : "Click or Drag Files Here to Upload"}
           </h3>
           <p className="text-xs text-white/40 leading-relaxed font-mono">
-            Supported formats: PNG, JPG, JPEG, WEBP, SVG, GIF, MP4 (up to 25MB per file)
+            Images up to 25MB; MP4 and WEBM videos up to 180MB per file.
           </p>
         </div>
       </div>

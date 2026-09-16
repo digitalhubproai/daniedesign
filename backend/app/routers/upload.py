@@ -16,6 +16,15 @@ router = APIRouter(prefix="/upload", tags=["Uploads & Media"])
 
 # extension allowlist used to reject anything that is not an image or web video format
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".mp4", ".webm"}
+VIDEO_EXTENSIONS = {".mp4", ".webm"}
+
+def max_upload_size_mb(extension: str) -> int:
+    """Return the appropriate per-file limit for an allowed media type."""
+    return (
+        settings.MAX_VIDEO_UPLOAD_SIZE_MB
+        if extension in VIDEO_EXTENSIONS
+        else settings.MAX_UPLOAD_SIZE_MB
+    )
 
 def get_file_url(request: Request, filename: str) -> str:
     """Build the publicly reachable URL for a stored file from the current
@@ -43,11 +52,12 @@ def upload_single_image(request: Request, file: UploadFile = File(...)):
     file_size = len(contents)
 
     # enforce the size limit after reading (UploadFile has no reliable pre-size)
-    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+    max_size_mb = max_upload_size_mb(ext)
+    max_bytes = max_size_mb * 1024 * 1024
     if file_size > max_bytes:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File exceeds maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB}MB"
+            detail=f"File exceeds maximum allowed size of {max_size_mb}MB"
         )
 
     try:
@@ -85,6 +95,9 @@ def upload_multiple_images(request: Request, files: List[UploadFile] = File(...)
         try:
             contents = file.file.read()
             file_size = len(contents)
+            max_size_mb = max_upload_size_mb(ext)
+            if file_size > max_size_mb * 1024 * 1024:
+                continue
             unique_filename = storage.save_file(contents, ext, file.content_type)
             uploaded_files.append(UploadResponse(
                 filename=unique_filename,
