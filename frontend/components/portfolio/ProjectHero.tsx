@@ -69,10 +69,11 @@ export default function ProjectHero({
         className="absolute -top-[10%] left-0 h-[120%] w-full"
       >
         {video ? (
+          // Ambient backdrop only — the watchable player lives in its own
+          // ProjectVideo section further down the page.
           <video
             src={video}
             poster={image}
-            controls
             autoPlay
             muted
             loop

@@ -1,11 +1,11 @@
 // Media library picker modal — fetches files already stored on the backend
-// (GET /upload/media) and lets admin forms select one (cover) or many
+// (GET /upload/media) and lets admin forms select one (cover/video) or many
 // (gallery) instead of re-uploading. Used by ProjectForm and BlogForm.
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Check, Loader2, X, Search, ImageOff } from "lucide-react";
+import { Check, Loader2, X, Search, ImageOff, Film } from "lucide-react";
 import { listMedia, MediaFileItem } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ type Props = {
   multiple?: boolean;
   /** Title shown in the modal header. */
   title?: string;
+  /** Which slice of the library to browse: stills, videos, or everything. */
+  kind?: "all" | "image" | "video";
 };
 
 export default function MediaLibraryPicker({
@@ -27,6 +29,7 @@ export default function MediaLibraryPicker({
   onSelect,
   multiple = false,
   title = "Media Library",
+  kind = "image",
 }: Props) {
   const [files, setFiles] = useState<MediaFileItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,11 +43,11 @@ export default function MediaLibraryPicker({
     setLoading(true);
     setError(null);
     setSelected([]);
-    listMedia("image")
+    listMedia(kind)
       .then(setFiles)
       .catch((err: any) => setError(err.message || "Failed to load media library"))
       .finally(() => setLoading(false));
-  }, [open]);
+  }, [open, kind]);
 
   if (!open) return null;
 
@@ -118,12 +121,23 @@ export default function MediaLibraryPicker({
           ) : visible.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-16 text-white/40">
               <ImageOff className="h-6 w-6" />
-              <span className="text-xs">No images uploaded yet.</span>
+              <span className="text-xs">
+                {kind === "video"
+                  ? "No videos uploaded yet."
+                  : kind === "all"
+                    ? "No media uploaded yet."
+                    : "No images uploaded yet."}
+              </span>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-5">
               {visible.map((f) => {
                 const isSelected = selected.includes(f.url);
+                // next/image can't render a video file, so those get a muted
+                // <video> thumbnail; the extension check backs up content_type,
+                // which some uploads leave as application/octet-stream.
+                const isVideo =
+                  f.content_type?.startsWith("video/") || /\.(mp4|webm)$/i.test(f.filename);
                 return (
                   <button
                     key={f.filename}
@@ -134,14 +148,29 @@ export default function MediaLibraryPicker({
                     }`}
                     title={`${f.filename} · ${(f.size / 1024).toFixed(0)} KB`}
                   >
-                    <Image
-                      src={f.url}
-                      alt={f.filename}
-                      fill
-                      sizes="120px"
-                      className="object-cover"
-                      unoptimized
-                    />
+                    {isVideo ? (
+                      <>
+                        <video
+                          src={f.url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="h-full w-full object-cover"
+                        />
+                        <span className="pointer-events-none absolute left-1 top-1 rounded bg-black/60 p-1 text-white/80">
+                          <Film className="h-3 w-3" />
+                        </span>
+                      </>
+                    ) : (
+                      <Image
+                        src={f.url}
+                        alt={f.filename}
+                        fill
+                        sizes="120px"
+                        className="object-cover"
+                        unoptimized
+                      />
+                    )}
                     {isSelected && (
                       <span className="absolute right-1 top-1 rounded-full bg-accent p-1 text-black">
                         <Check className="h-3 w-3" />
