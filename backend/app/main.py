@@ -69,6 +69,9 @@ app = FastAPI(
 production_origins = list(dict.fromkeys([
     *settings.cors_origin_list,
     "https://daniedesign.vercel.app",
+    # Vercel preview deployments use a random subdomain; allow the current
+    # preview host so admin forms can upload media while a PR is being tested.
+    "https://daniedesign-3zq6.vercel.app",
 ]))
 app.add_middleware(
     CORSMiddleware,
