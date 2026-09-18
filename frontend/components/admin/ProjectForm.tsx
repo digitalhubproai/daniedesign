@@ -125,7 +125,11 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
     setError(null);
     try {
       const res = await uploadImage(file);
-      setForm((prev) => ({ ...prev, video: res.url }));
+      // Store an absolute URL so the video remains reachable from any origin
+      // (the project detail page may render on the deployed frontend while
+      // the /uploads route lives on the separate backend host).
+      const absoluteUrl = res.url.startsWith("http") ? res.url : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${res.url}`;
+      setForm((prev) => ({ ...prev, video: absoluteUrl }));
     } catch (err: any) {
       setError(err.message || "Failed to upload video");
     } finally {
@@ -163,13 +167,18 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
   };
 
   // Media-library selection: cover/video take one URL, gallery appends the batch.
+  // Normalize every picked URL to an absolute URL so the video / image element
+  // never points at a relative path that depends on which origin rendered the page.
+  const resolvePublicUrl = (url: string) =>
+    url.startsWith("http") ? url : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${url}`;
+
   const handlePickerSelect = (urls: string[]) => {
     if (pickerFor === "cover") {
-      setForm((prev) => ({ ...prev, image: urls[0] }));
+      setForm((prev) => ({ ...prev, image: resolvePublicUrl(urls[0]) }));
     } else if (pickerFor === "video") {
-      setForm((prev) => ({ ...prev, video: urls[0] }));
+      setForm((prev) => ({ ...prev, video: resolvePublicUrl(urls[0]) }));
     } else if (pickerFor === "gallery") {
-      setForm((prev) => ({ ...prev, gallery: [...(prev.gallery || []), ...urls] }));
+      setForm((prev) => ({ ...prev, gallery: [...(prev.gallery || []), ...urls.map(resolvePublicUrl)] }));
     }
     setPickerFor(null);
   };
