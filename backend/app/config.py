@@ -31,7 +31,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = (
         "http://localhost:3000,http://127.0.0.1:3000,"
         "http://localhost:3001,http://127.0.0.1:3001,"
-        "https://daniedesign.vercel.app"
+        "https://daniedesign.vercel.app,"
+        "https://daniedesign-3zq6.vercel.app"
     )
 
     # Uploads (files live in the DB now). Images retain the smaller limit,
