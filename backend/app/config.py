@@ -43,19 +43,6 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = ""
     ADMIN_PASSWORD: str = ""
 
-    # Outbound email (SMTP relay) — inquiry notifications. Point these at any
-    # provider's SMTP credentials in the environment; the relay is silently
-    # skipped if SMTP_PASSWORD (or SMTP_HOST) is not configured.
-    SMTP_HOST: str = ""
-    SMTP_PORT: int = 587
-    SMTP_USER: str = ""
-    SMTP_PASSWORD: str = ""
-    # Sender address shown on the notification email; the provider typically
-    # requires it to be one you have verified with them.
-    SMTP_FROM_EMAIL: str = "daniedesignz@gmail.com"
-    SMTP_FROM_NAME: str = "Danie Design Website"
-    # Where new-inquiry notifications are delivered.
-    NOTIFY_EMAIL: str = "daniedesignz@gmail.com"
     # Signing key for admin JWTs — set a strong random value in every environment
     JWT_SECRET: str = ""
     JWT_ALGORITHM: str = "HS256"
