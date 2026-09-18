@@ -4,7 +4,7 @@
  * These service entries are fallback/demo data: the API layer (`lib/api.ts`)
  * returns them on the services page and in the admin dashboard whenever the
  * backend is unavailable. Each entry also drives its own hero section (tagline,
- * video, accent color).
+ * accent color).
  */
 
 /** Shape of a single service offering, including its landing-page presentation fields. */
@@ -16,7 +16,6 @@ export type Service = {
   href: string;
   image: string;
   tagline: string;
-  video: string;
   accent: string;
 };
 
@@ -37,7 +36,6 @@ export const services: Service[] = [
     href: "/services/branding",
     image: "/images/branding.jpg",
     tagline: "Identities that stay recognizable",
-    video: "https://cdn.pixabay.com/video/2017/04/21/8794-214200523_medium.mp4",
     accent: "#ff4d1f",
   },
   {
@@ -56,7 +54,6 @@ export const services: Service[] = [
     href: "/services/ui-ux",
     image: "/images/uiux.jpg",
     tagline: "Experiences people understand",
-    video: "https://cdn.pixabay.com/video/2019/10/09/27669-365224683_medium.mp4",
     accent: "#4da6ff",
   },
   {
@@ -77,7 +74,6 @@ export const services: Service[] = [
     href: "/services/web-development",
     image: "/images/web development.png",
     tagline: "Performance behind the pixels",
-    video: "https://cdn.pixabay.com/video/2020/06/18/42521-431738825_medium.mp4",
     accent: "#7ee787",
   },
   {
@@ -95,7 +91,6 @@ export const services: Service[] = [
     href: "/services/digital-marketing",
     image: "/images/digitalmarketing.webp",
     tagline: "Attention turned into growth",
-    video: "https://cdn.pixabay.com/video/2020/08/21/47713-451772938_medium.mp4",
     accent: "#b388ff",
   },
 ];

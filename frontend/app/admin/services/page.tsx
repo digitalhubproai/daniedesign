@@ -227,16 +227,6 @@ export default function AdminServicesPage() {
                     onChange={(e) => setEditForm({ ...editForm, accent: e.target.value })}
                   />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-mono text-white/60 mb-1 uppercase">
-                    Video Background URL
-                  </label>
-                  <Input
-                    type="text"
-                    value={editForm.video || ""}
-                    onChange={(e) => setEditForm({ ...editForm, video: e.target.value })}
-                  />
-                </div>
               </div>
 
               {/* Cover Image Upload */}

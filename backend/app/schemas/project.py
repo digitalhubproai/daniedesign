@@ -11,7 +11,6 @@ class ProjectBase(BaseModel):
     year: str = "2025"  # display string, not a date
     description: str
     image: str
-    video: Optional[str] = ""
     services: List[str] = Field(default_factory=list)
     featured: bool = False
     # case-study narrative sections shown on the project detail page
@@ -37,7 +36,6 @@ class ProjectUpdate(BaseModel):
     year: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    video: Optional[str] = None
     services: Optional[List[str]] = None
     featured: Optional[bool] = None
     challenge: Optional[str] = None

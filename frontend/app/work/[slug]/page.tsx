@@ -10,7 +10,6 @@ import TiltCard from "@/components/animations/TiltCard";
 import RollNumber from "@/components/animations/RollNumber";
 import ProjectHero from "@/components/portfolio/ProjectHero";
 import GalleryDeck from "@/components/portfolio/GalleryDeck";
-import ProjectVideo from "@/components/portfolio/ProjectVideo";
 import ScrollProgress from "@/components/portfolio/ScrollProgress";
 import ParallaxFrame from "@/components/portfolio/ParallaxFrame";
 import ImpactBand, { type ProjectStat } from "@/components/portfolio/ImpactBand";
@@ -89,7 +88,6 @@ export default async function ProjectPage({ params }: Props) {
 
       <ProjectHero
         image={project.image}
-        video={project.video || undefined}
         title={project.title}
         category={project.category}
         year={project.year}
@@ -278,13 +276,6 @@ export default async function ProjectPage({ params }: Props) {
       )}
 
       {/* ── Gallery ─────────────────────────────────────────────────────── */}
-      {/* Project Video — its own band, separate from the gallery deck below.
-          Rendered only when a video exists, so projects without one leave no
-          gap and no empty wrapper. */}
-      {project.video && (
-        <ProjectVideo src={project.video} title={project.title} poster={project.image || undefined} />
-      )}
-
       {project.gallery.length > 0 && <GalleryDeck images={project.gallery} title={project.title} />}
 
       {/* ── Prev / Next ─────────────────────────────────────────────────── */}

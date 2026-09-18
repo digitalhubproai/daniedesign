@@ -12,7 +12,6 @@ class ServiceBase(BaseModel):
     href: str  # frontend route this card links to
     image: str
     tagline: str
-    video: Optional[str] = ""
     accent: str = "#ff4d1f"  # brand highlight color for this service
     order: Optional[int] = 0
 
@@ -30,7 +29,6 @@ class ServiceUpdate(BaseModel):
     href: Optional[str] = None
     image: Optional[str] = None
     tagline: Optional[str] = None
-    video: Optional[str] = None
     accent: Optional[str] = None
     order: Optional[int] = None
 

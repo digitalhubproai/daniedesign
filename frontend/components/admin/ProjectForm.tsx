@@ -1,6 +1,6 @@
 // Create/edit portfolio case-study form shared by /admin/projects/new and
 // /admin/projects/edit/[slug]. Builds a Project record (metadata, service
-// tags, cover/video/gallery media, features, tech stack) and POSTs or PUTs
+// tags, cover/gallery media, features, tech stack) and POSTs or PUTs
 // it to the backend /projects API; images upload via the media endpoints.
 "use client";
 
@@ -11,12 +11,10 @@ import Link from "next/link";
 import {
   UploadCloud,
   X,
-  Plus,
   ArrowLeft,
   Loader2,
   CheckCircle2,
   Image as ImageIcon,
-  Film,
   Star,
 } from "lucide-react";
 import { createProject, updateProject, uploadImage, uploadMultipleImages } from "@/lib/api";
@@ -44,7 +42,6 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
     year: initialData?.year || "2025",
     description: initialData?.description || "",
     image: initialData?.image || "",
-    video: initialData?.video || "",
     services: initialData?.services || ["Brand Strategy", "Visual Identity"],
     featured: initialData?.featured ?? true,
     gallery: initialData?.gallery || [],
@@ -55,9 +52,8 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
   const [newTag, setNewTag] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
   // Which field the media-library picker is currently choosing for (null = closed).
-  const [pickerFor, setPickerFor] = useState<"cover" | "video" | "gallery" | null>(null);
+  const [pickerFor, setPickerFor] = useState<"cover" | "gallery" | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -108,35 +104,6 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
     }
   };
 
-  // Upload the picked video; the backend allowlists .mp4/.webm and caps the
-  // size at MAX_UPLOAD_SIZE_MB, so a bad file surfaces in the error banner.
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const maxVideoBytes = 180 * 1024 * 1024;
-    if (file.size > maxVideoBytes) {
-      setError("Video must be 180MB or smaller.");
-      e.target.value = "";
-      return;
-    }
-
-    setUploadingVideo(true);
-    setError(null);
-    try {
-      const res = await uploadImage(file);
-      // Store an absolute URL so the video remains reachable from any origin
-      // (the project detail page may render on the deployed frontend while
-      // the /uploads route lives on the separate backend host).
-      const absoluteUrl = res.url.startsWith("http") ? res.url : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${res.url}`;
-      setForm((prev) => ({ ...prev, video: absoluteUrl }));
-    } catch (err: any) {
-      setError(err.message || "Failed to upload video");
-    } finally {
-      setUploadingVideo(false);
-    }
-  };
-
   // Batch-upload the selected gallery files and append their returned URLs
   // to the existing gallery array (each upload succeeds or the whole batch errors).
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,17 +133,13 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
     }));
   };
 
-  // Media-library selection: cover/video take one URL, gallery appends the batch.
-  // Normalize every picked URL to an absolute URL so the video / image element
-  // never points at a relative path that depends on which origin rendered the page.
+  // Media-library selection: cover takes one URL, gallery appends the batch.
   const resolvePublicUrl = (url: string) =>
     url.startsWith("http") ? url : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${url}`;
 
   const handlePickerSelect = (urls: string[]) => {
     if (pickerFor === "cover") {
       setForm((prev) => ({ ...prev, image: resolvePublicUrl(urls[0]) }));
-    } else if (pickerFor === "video") {
-      setForm((prev) => ({ ...prev, video: resolvePublicUrl(urls[0]) }));
     } else if (pickerFor === "gallery") {
       setForm((prev) => ({ ...prev, gallery: [...(prev.gallery || []), ...urls.map(resolvePublicUrl)] }));
     }
@@ -442,77 +405,6 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
             </div>
           </div>
 
-          {/* Project Video — its own block, deliberately separate from the
-              gallery below: a project has at most one showreel, and it renders
-              as a standalone section on the public page. */}
-          <div className="border-t border-white/5 pt-4">
-            <div className="mb-2.5 flex items-baseline justify-between gap-3">
-              <label className="block text-[11px] font-mono text-white/60 uppercase">
-                Project Video (Optional)
-              </label>
-              {form.video && (
-                <button
-                  type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, video: "" }))}
-                  className="font-mono text-[10px] text-white/40 hover:text-red-400 transition-colors"
-                >
-                  Remove video
-                </button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <div className="relative border border-dashed border-white/20 rounded-xl p-5 text-center hover:border-accent transition-colors bg-[#161619]/40">
-                <input
-                  type="file"
-                  accept="video/mp4,video/webm"
-                  onChange={handleVideoUpload}
-                  disabled={uploadingVideo}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                />
-                <Film className="mx-auto h-6 w-6 text-accent mb-1.5" />
-                <p className="text-xs font-semibold text-white">
-                  {uploadingVideo ? "Uploading Video..." : "Click or Drag Project Video"}
-                </p>
-                <p className="text-[10px] font-mono text-white/40 mt-0.5">MP4 or WEBM up to 180MB</p>
-              </div>
-
-              <div className="space-y-2">
-                <Input
-                  type="text"
-                  value={form.video || ""}
-                  onChange={(e) => setForm({ ...form, video: e.target.value })}
-                  placeholder="Or paste direct video URL (MP4/WebM)"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  className="w-full text-xs"
-                  onClick={() => setPickerFor("video")}
-                >
-                  <Film className="mr-1.5 h-3.5 w-3.5" /> Pick from Media Library
-                </Button>
-                {form.video ? (
-                  <div className="overflow-hidden rounded-lg border border-white/10 bg-black/40">
-                    <video
-                      src={form.video}
-                      controls
-                      playsInline
-                      poster={form.image || undefined}
-                      preload="metadata"
-                      className="aspect-[16/10] w-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <p className="text-[10px] font-mono text-white/30 px-1">
-                    No video — that section stays hidden on the project page.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
           {/* Gallery Multi-Photos */}
           <div className="border-t border-white/5 pt-4">
             <label className="block text-[11px] font-mono text-white/60 mb-1.5 uppercase">
@@ -641,13 +533,11 @@ export default function ProjectForm({ initialData, isEdit = false }: Props) {
         onClose={() => setPickerFor(null)}
         onSelect={handlePickerSelect}
         multiple={pickerFor === "gallery"}
-        kind={pickerFor === "video" ? "video" : "image"}
+        kind="image"
         title={
           pickerFor === "gallery"
             ? "Pick Gallery Images"
-            : pickerFor === "video"
-              ? "Pick Project Video"
-              : "Pick Cover Image"
+            : "Pick Cover Image"
         }
       />
     </form>

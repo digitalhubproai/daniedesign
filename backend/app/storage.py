@@ -15,9 +15,8 @@ from sqlalchemy import func, or_
 from app.database import SessionLocal
 from app.models.stored_file import StoredFile
 
-# Extension allowlists used by the media-library kind filter (mirrors upload.py)
+# Extension allowlist used by the media-library kind filter (mirrors upload.py)
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"}
-VIDEO_EXTS = {".mp4", ".webm"}
 
 
 def _now() -> datetime:
@@ -59,7 +58,7 @@ def load_file(filename: str) -> Optional[Tuple[bytes, str]]:
 
 
 def list_files(kind: str = "all", limit: int = 200) -> Tuple[List[StoredFile], int]:
-    """Newest-first metadata (image/video/all) and the total match count.
+    """Newest-first metadata (image/all) and the total match count.
 
     Selects StoredFile entities without touching the `data` column, so listing
     the media library never streams blobs back from the database.
@@ -73,8 +72,6 @@ def list_files(kind: str = "all", limit: int = 200) -> Tuple[List[StoredFile], i
         exts = None
         if kind == "image":
             exts = IMAGE_EXTS
-        elif kind == "video":
-            exts = VIDEO_EXTS
         if exts is not None:
             # LIKE-matched extensions avoid loading data rows just to inspect a suffix
             query = query.filter(

@@ -14,7 +14,6 @@ class Project(Base):
     year = Column(String(20), nullable=False, default="2025")
     description = Column(Text, nullable=False)
     image = Column(String(500), nullable=False)
-    video = Column(String(500), nullable=True, default="")
     # List of service names displayed as tags on the project card
     services = Column(JSON, default=list)
     featured = Column(Boolean, default=False, index=True)

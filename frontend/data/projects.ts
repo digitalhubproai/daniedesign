@@ -15,7 +15,6 @@ export type Project = {
   year: string;
   description: string;
   image: string;
-  video?: string;
   services: string[];
   featured?: boolean;
   challenge: string;

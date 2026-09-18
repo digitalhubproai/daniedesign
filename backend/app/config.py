@@ -35,10 +35,8 @@ class Settings(BaseSettings):
         "https://daniedesign-3zq6.vercel.app"
     )
 
-    # Uploads (files live in the DB now). Images retain the smaller limit,
-    # while project videos may be substantially larger.
+    # Uploads (files live in the DB now).
     MAX_UPLOAD_SIZE_MB: int = 25
-    MAX_VIDEO_UPLOAD_SIZE_MB: int = 180
 
     # Admin CRM — creds must come from the environment
     ADMIN_EMAIL: str = ""

@@ -7,7 +7,7 @@ uses (backend/.env points at it):
 
 1. Copies every allowed file in backend/uploads/ into the stored_files table
    (skipping filenames already present, so it's re-runnable).
-2. Rewrites image/video URL columns that still point at
+2. Rewrites image URL columns that still point at
    http://localhost:8000/uploads/ (or 127.0.0.1) to {base-url}/uploads/.
 """
 
@@ -24,15 +24,15 @@ from app.models import (  # noqa: E402
 )
 
 # extension allowlist mirroring routers/upload.py
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".mp4", ".webm"}
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"}
 # URL prefixes that were produced by the old disk-backed local server
 OLD_PREFIXES = ("http://localhost:8000/uploads/", "http://127.0.0.1:8000/uploads/")
 
 # model -> URL-storing string columns; projects also has a JSON gallery list
 URL_COLUMNS = [
-    (Project, ["image", "video"]),
+    (Project, ["image"]),
     (BlogPost, ["image"]),
-    (Service, ["image", "video"]),
+    (Service, ["image"]),
     (CreativeItem, ["image"]),
     (Client, ["logo"]),
     (TeamMember, ["image"]),

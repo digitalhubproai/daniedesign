@@ -15,7 +15,6 @@ import SplitText from "@/components/animations/SplitText";
 
 type ProjectHeroProps = {
   image: string;
-  video?: string;
   title: string;
   category: string;
   year: string;
@@ -25,7 +24,6 @@ type ProjectHeroProps = {
 
 export default function ProjectHero({
   image,
-  video,
   title,
   category,
   year,
@@ -68,42 +66,27 @@ export default function ProjectHero({
         style={{ y: bgY, scale }}
         className="absolute -top-[10%] left-0 h-[120%] w-full"
       >
-        {video ? (
-          // Ambient backdrop only — the watchable player lives in its own
-          // ProjectVideo section further down the page.
-          <video
-            src={video}
-            poster={image}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            className="h-full w-full object-cover blur-sm scale-110"
+        <motion.div
+          initial={{ scale: 1.18 }}
+          animate={{ scale: [1.18, 1.1, 1.14, 1.1] }}
+          transition={{
+            duration: 3,
+            times: [0, 0.35, 0.68, 1],
+            ease: "easeOut",
+            repeat: Infinity,
+            repeatDelay: 6,
+          }}
+          className="relative h-full w-full"
+        >
+          <Image
+            src={image}
+            alt={`${title} — main visual`}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_30%] blur-sm"
           />
-        ) : (
-          <motion.div
-            initial={{ scale: 1.18 }}
-            animate={{ scale: [1.18, 1.1, 1.14, 1.1] }}
-            transition={{
-              duration: 3,
-              times: [0, 0.35, 0.68, 1],
-              ease: "easeOut",
-              repeat: Infinity,
-              repeatDelay: 6,
-            }}
-            className="relative h-full w-full"
-          >
-            <Image
-              src={image}
-              alt={`${title} — main visual`}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-[center_30%] blur-sm"
-            />
-          </motion.div>
-        )}
+        </motion.div>
       </motion.div>
 
       {/* Heavy dark scrim for text readability */}
